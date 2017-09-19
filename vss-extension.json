@@ -1,0 +1,99 @@
+{
+    "manifestVersion": 1,
+    "id": "velocity-control-chart-extensions",
+    "version": "0.0.27",
+    "name": "Velocity Control Chart Extensions",
+    "description": "VSTS extensions to analyse team velocity to highlight anomalies.",
+    "publisher": "headforwards",
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],
+    "categories": [
+        "Plan and track"
+    ],
+    "tags": [
+        "velocity",
+        "six sigma",
+        "control",
+        "outlier",
+        "dashboard"
+    ],
+    "icons": {
+        "default": "img/logo.png"
+    },
+    "scopes": [
+        "vso.work"
+    ],
+    "content": {
+        "details": {
+            "path": "docs/description.md"
+        }
+    },
+    "links": {
+        "home": {
+            "uri": "https://www.headforwards.com"
+        },
+        "issues": {
+            "uri": "https://github.com/headforwards/VelocityVSTSExtension/issues"
+        }
+    },
+    "contributions": [
+        {
+            "id": "VelocityControlChart",
+            "type": "ms.vss-dashboards-web.widget",
+            "targets": [
+                "ms.vss-dashboards-web.widget-catalog",
+                "headforwards.velocity-control-chart-extensions.VelocityControlChart.Configuration"
+            ],
+            "properties": {
+                "name": "Velocity Control Chart Dashboard Widget",
+                "description": "Six Sigma style Velocity Control Chart",
+                "catalogIconUrl:": "img/logo.png",
+                "previewImageUrl": "img/preview.png",                            
+                "uri": "velocity-control-chart.html",
+                "isNameConfigurable": true,
+                "supportedSizes": [
+                     {
+                            "rowSpan": 1,
+                            "columnSpan": 2
+                        },
+                        {
+                            "rowSpan": 2,
+                            "columnSpan": 4
+                        },
+                        {
+                            "rowSpan": 4,
+                            "columnSpan": 4
+                        }
+                    ],
+                "supportedScopes": ["project_team"]
+            }
+        },
+        {
+            "id": "VelocityControlChart.Configuration",
+            "type": "ms.vss-dashboards-web.widget-configuration",
+            "targets": [ "ms.vss-dashboards-web.widget-configuration" ],
+            "properties": {
+                "name": "VelocityControlChart Configuration",
+                "description": "Configures VelocityControlChart Widget",
+                "uri": "velocity-control-chart-configuration.html"
+            }
+        }
+    ],
+    "files": [
+        {
+            "path": "velocity-control-chart.html", "addressable": true
+        },
+        {
+            "path": "velocity-control-chart-configuration.html", "addressable": true
+        },
+        {
+            "path": "sdk/scripts", "addressable": true
+        },
+        {
+            "path": "img", "addressable": true
+        }
+    ]
+}
