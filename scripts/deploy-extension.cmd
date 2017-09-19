@@ -1,0 +1,1 @@
+tfx extension publish --manifest-globs vss-extension.json --share-with dlongman.visualstudio.com --token aivnlwaizra3ybrkfxixdos3yw5k4ftcsln34lssn272elixrapa
