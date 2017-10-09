@@ -1,112 +1,33 @@
 <!DOCTYPE html>
 <html>
-    <head>          
-        <script src="sdk/scripts/VSS.SDK.min.js"></script>      
-        
-        <script type="text/javascript">
-            VSS.init({                        
-                explicitNotifyLoaded: true,
-                usePlatformStyles: true
-            });
-    
-            VSS.require(["TFS/Dashboards/WidgetHelpers", "TFS/WorkItemTracking/RestClient", "TFS/WorkItemTracking/Contracts", "TFS/Work/RestClient"], 
-                function (WidgetHelpers, TFS_WorkItemTracking_Api, TFS_WorkItemTracking_Contracts, TFS_Work_Api) {
-                    WidgetHelpers.IncludeWidgetStyles();
-                    VSS.register("VelocityControlChart", function () {    
-                        
-                        var projectId = VSS.getWebContext().project.id;
-                        var projectName = VSS.getWebContext().project.name;
-                        var teamId = VSS.getWebContext().team.id;
-                        var teamName = VSS.getWebContext().team.name;
-                        var query = "SELECT [System.Id] From WorkItems WHERE ([System.WorkItemType] = 'User Story' OR [System.WorkItemType] = 'Product Backlog Item')";
-                        var wiql = {};
 
-                        var teamContext = {
-                            project: projectName,
-                            projectId: projectId,
-                            team: teamName,
-                            teamId: teamId
-                        };
-                        
-                        wiql.query = query;
+<head>
+    <script src="./sdk/VSS.SDK.min.js"></script>
+    <!-- <script src="./js/bootstrapper.js"></script> -->
+    <script type="text/javascript">
+        VSS.init({
+            explicitNotifyLoaded: true,
+            usePlatformStyles: true,
+            configureModuleLoader: true
+        });
 
-                        var getWorkItemInfo = function (widgetSettings) {
-                            console.log(widgetSettings);
+        // Load main entry point for extension
+        VSS.require(["js/ts/bootstrapper"], function () {
+            // Loading succeeded
+            VSS.notifyLoadSucceeded();
+        });
 
-                            // Get a WIT client to make REST calls to VSTS
-                            return TFS_WorkItemTracking_Api.getClient().queryByWiql(wiql, projectName)
-                                .then(function (query) {
-                                    // Do something with the query    
-                                    console.log(query);                                                     
+                
+    </script>
 
-                                    // Append the workitem count to the query-info-container
-                                    var $container = $('#story-info-container');
-                                    $container.empty();
-                                    $container.append("<p>There are <strong>" + query.workItems.length + "</strong> stories in this project.</p>");
+</head>
 
-                                    return WidgetHelpers.WidgetStatusHelper.Success();
-                                }, function (error) {                            
-                                    return WidgetHelpers.WidgetStatusHelper.Failure(error.message);
-                                });
-                        }
+<body>
+    <div class="widget">
+        <h2 class="title"></h2>
+        <div id="story-info-container"></div>
+        <div id="iteration-info-container"></div>
+    </div>
+</body>
 
-                        var getIterationDetails = function (widgetSettings) {
-
-                            // Get a WIT client to make REST calls to VSTS
-                            return TFS_Work_Api.getClient().getTeamIterations(teamContext)
-                                .then(function (query) {
-                                    // Do something with the query    
-                                    console.log(query);                                                     
-
-                                    // Append the workitem count to the query-info-container
-                                    var $container = $('#iteration-info-container');
-                                    $container.empty();
-                                    $container.append("<p>There are <strong>" + query.length + "</strong> iterations in this project.</p>");
-                                    $container.append("<ul>");
-
-                                    query.forEach(function(element) {
-                                        $container.append("<li><strong>" + element.name + "</strong> [" + element.attributes.startDate + " - " + element.attributes.finishDate + "]</li>");
-                                    }, this);
-
-                                    $container.append("</ul>");
-
-                                    return WidgetHelpers.WidgetStatusHelper.Success();
-                                }, function (error) {                            
-                                    return WidgetHelpers.WidgetStatusHelper.Failure(error.message);
-                                });
-                        }
-
-                        return {
-                            load: function (widgetSettings) {
-                                console.log("Load function called");
-                                console.log(widgetSettings);
-
-                                var $title = $('h2.title');
-                                $title.text(widgetSettings.name);
-        
-                                return getWorkItemInfo(widgetSettings) && getIterationDetails(widgetSettings);
-                            },
-                            reload: function (widgetSettings) {
-                                console.log("Reload function called");
-                                console.log(widgetSettings);
-
-                                var $title = $('h2.title');
-                                $title.text(widgetSettings.name);
-        
-                                return getWorkItemInfo(widgetSettings) && getIterationDetails(widgetSettings);
-                            }
-                        }
-                    });
-                    VSS.notifyLoadSucceeded();
-                });
-        </script>
-
-    </head>
-    <body>
-        <div class="widget">
-            <h2 class="title"></h2>
-            <div id="story-info-container"></div>
-            <div id="iteration-info-container"></div>
-        </div>
-    </body>
 </html>

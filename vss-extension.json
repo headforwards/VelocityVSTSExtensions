@@ -1,7 +1,7 @@
 {
     "manifestVersion": 1,
     "id": "velocity-control-chart-extensions",
-    "version": "0.0.27",
+    "version": "0.0.96",
     "name": "Velocity Control Chart Extensions",
     "description": "VSTS extensions to analyse team velocity to highlight anomalies.",
     "publisher": "headforwards",
@@ -90,7 +90,16 @@
             "path": "velocity-control-chart-configuration.html", "addressable": true
         },
         {
-            "path": "sdk/scripts", "addressable": true
+            "path": "sdk", "addressable": true
+        },
+        {
+            "path": "scripts", "addressable": true
+        },
+        {
+            "path": "js", "addressable": true
+        },
+        {
+            "path": "ts", "addressable": true
         },
         {
             "path": "img", "addressable": true
