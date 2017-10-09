@@ -6,7 +6,7 @@ import Work_Contracts = require("TFS/Work/Contracts");
 import Core_Contracts = require("TFS/Core/Contracts");
 import WidgetHelpers = require("TFS/Dashboards/WidgetHelpers");
 import Velocity = require("./velocity");
-import DateTimeHelper = require("./datetimeHelper");
+import "./date";
 
 class Main {
 
@@ -43,7 +43,7 @@ class Main {
         var query: WIT_Contracts.Wiql;
         query.query = "SELECT [System.Id] From WorkItems WHERE ([System.WorkItemType] = 'User Story' OR [System.WorkItemType] = 'Product Backlog Item' OR [System.WorkItemType] = 'Defect' OR [System.WorkItemType] = 'Bug') AND [Iteration Path] = '" +
             iteration.path + "' ASOF '" +
-            DateTimeHelper.getNextWeekDayAtMidday(iteration.attributes.finishDate).toISOString() + "'";
+            iteration.attributes.finishDate.getNextWeekDayAtMidday().toISOString() + "'";
 
         // Get a WIT client to make REST calls to VSTS
         return WIT_Client.getClient().queryByWiql(query, Main.getTeamContext().projectId);
@@ -59,7 +59,7 @@ class Main {
         query = {query:""};
         query.query = "SELECT [System.Id] From WorkItems WHERE ([System.WorkItemType] = 'User Story' OR [System.WorkItemType] = 'Product Backlog Item' OR [System.WorkItemType] = 'Defect' OR [System.WorkItemType] = 'Bug') AND [Iteration Path] = '" +
             iteration.path + "' ASOF '" +
-            DateTimeHelper.endOfDay(iteration.attributes.startDate).toISOString() + "'";
+            iteration.attributes.startDate.endOfDay().toISOString() + "'";
         // Get a WIT client to make REST calls to VSTS
         return WIT_Client.getClient().queryByWiql(query, this.getTeamContext().projectId);
     }

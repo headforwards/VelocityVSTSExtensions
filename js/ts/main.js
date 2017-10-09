@@ -1,4 +1,4 @@
-define(["require", "exports", "TFS/WorkItemTracking/RestClient", "TFS/Work/RestClient", "./datetimeHelper"], function (require, exports, WIT_Client, Work_Client, DateTimeHelper) {
+define(["require", "exports", "TFS/WorkItemTracking/RestClient", "TFS/Work/RestClient", "./date"], function (require, exports, WIT_Client, Work_Client) {
     "use strict";
     var Main = (function () {
         function Main() {
@@ -19,7 +19,7 @@ define(["require", "exports", "TFS/WorkItemTracking/RestClient", "TFS/Work/RestC
             var query;
             query.query = "SELECT [System.Id] From WorkItems WHERE ([System.WorkItemType] = 'User Story' OR [System.WorkItemType] = 'Product Backlog Item' OR [System.WorkItemType] = 'Defect' OR [System.WorkItemType] = 'Bug') AND [Iteration Path] = '" +
                 iteration.path + "' ASOF '" +
-                DateTimeHelper.getNextWeekDayAtMidday(iteration.attributes.finishDate).toISOString() + "'";
+                iteration.attributes.finishDate.getNextWeekDayAtMidday().toISOString() + "'";
             return WIT_Client.getClient().queryByWiql(query, Main.getTeamContext().projectId);
         };
         Main.getWorkItemsInIterationAtStart = function (iteration) {
@@ -27,7 +27,7 @@ define(["require", "exports", "TFS/WorkItemTracking/RestClient", "TFS/Work/RestC
             query = { query: "" };
             query.query = "SELECT [System.Id] From WorkItems WHERE ([System.WorkItemType] = 'User Story' OR [System.WorkItemType] = 'Product Backlog Item' OR [System.WorkItemType] = 'Defect' OR [System.WorkItemType] = 'Bug') AND [Iteration Path] = '" +
                 iteration.path + "' ASOF '" +
-                DateTimeHelper.endOfDay(iteration.attributes.startDate).toISOString() + "'";
+                iteration.attributes.startDate.endOfDay().toISOString() + "'";
             return WIT_Client.getClient().queryByWiql(query, this.getTeamContext().projectId);
         };
         Main.prototype.getVelocityData = function () {
