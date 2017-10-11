@@ -1,52 +1,57 @@
-define(["require", "exports", "TFS/WorkItemTracking/RestClient", "TFS/Work/RestClient", "./date"], function (require, exports, WIT_Client, Work_Client) {
+define(["require", "exports", "q", "TFS/Work/RestClient", "./velocity", "./iteration", "./config", "./date"], function (require, exports, Q, Work_Client, Velocity, Iteration, TfsConfig) {
     "use strict";
     var Main = (function () {
         function Main() {
         }
-        Main.getTeamContext = function () {
-            var ctx = VSS.getWebContext();
-            return {
-                projectId: ctx.project.id,
-                teamId: ctx.team.id,
-                project: ctx.project.name,
-                team: ctx.team.name
-            };
+        Main.getTfsData = function (widgetSettings) {
+            var _this = this;
+            var deferred = Q.defer();
+            Main.getVelocityData().then(function (velocity) {
+                console.log("Load function called");
+                console.log(widgetSettings);
+                console.log("Setting Widget Title to " + widgetSettings.name);
+                var $title = $('h2.title');
+                $title.text(widgetSettings.name);
+                Main.addVelocityDataToView(velocity);
+                deferred.resolve(_this);
+            });
+            return deferred.promise;
         };
-        Main.prototype.test = function () {
-            console.log("I am in the testing method");
-        };
-        Main.prototype.getWorkItemsInIterationAtEnd = function (iteration) {
-            var query;
-            query.query = "SELECT [System.Id] From WorkItems WHERE ([System.WorkItemType] = 'User Story' OR [System.WorkItemType] = 'Product Backlog Item' OR [System.WorkItemType] = 'Defect' OR [System.WorkItemType] = 'Bug') AND [Iteration Path] = '" +
-                iteration.path + "' ASOF '" +
-                iteration.attributes.finishDate.getNextWeekDayAtMidday().toISOString() + "'";
-            return WIT_Client.getClient().queryByWiql(query, Main.getTeamContext().projectId);
-        };
-        Main.getWorkItemsInIterationAtStart = function (iteration) {
-            var query;
-            query = { query: "" };
-            query.query = "SELECT [System.Id] From WorkItems WHERE ([System.WorkItemType] = 'User Story' OR [System.WorkItemType] = 'Product Backlog Item' OR [System.WorkItemType] = 'Defect' OR [System.WorkItemType] = 'Bug') AND [Iteration Path] = '" +
-                iteration.path + "' ASOF '" +
-                iteration.attributes.startDate.endOfDay().toISOString() + "'";
-            return WIT_Client.getClient().queryByWiql(query, this.getTeamContext().projectId);
-        };
-        Main.prototype.getVelocityData = function () {
-            console.log("In getVelocityData");
+        Main.getVelocityData = function () {
+            var deferred = Q.defer();
+            var config = new TfsConfig();
             var velocity;
             var workApiClient = Work_Client.getClient();
-            var witApiClient = WIT_Client.getClient();
-            var iterations = workApiClient.getTeamIterations(Main.getTeamContext());
-            var workItemsInIterationQuery;
-            console.log("execute iterations query");
-            iterations.then(function (i) {
-                console.log("Retrieved iterations");
-                i.forEach(function (element) {
-                    Main.getWorkItemsInIterationAtStart(element).then(function (iter) {
-                        console.log(iter);
-                    });
+            var iterations = workApiClient.getTeamIterations(config.TeamContext());
+            iterations.then(function (iteration) {
+                velocity = new Velocity();
+                iteration.forEach(function (element) {
+                    velocity.iterations.push(new Iteration(element, config));
                 });
-                console.log("Done");
+                console.log("Now we can get the data from TFS");
+                console.log("There are " + velocity.iterations.length + " iterations in velocity");
+                var promises = [];
+                velocity.iterations.forEach(function (iteration) {
+                    promises.push(iteration.getWorkItemInformation());
+                });
+                Q.all(promises).then(function () {
+                    console.log("Retrieved all iterations");
+                    console.log(velocity);
+                    deferred.resolve(velocity);
+                });
             });
+            return deferred.promise;
+        };
+        Main.addVelocityDataToView = function (velocity) {
+            var $container = $('#iteration-info-container');
+            $container.empty();
+            $container.append("<p>There are <strong>" + velocity.iterations.length + "</strong> iterations in this project.</p>");
+            $container.append("<p>The average story size is <strong>" + velocity.average + "</strong></p>");
+            $container.append("<ul>");
+            velocity.iterations.forEach(function (element) {
+                $container.append("<li><strong>" + element.name + "</strong> [" + element.startDate + " - " + element.endDate + "]</li>");
+            }, this);
+            $container.append("</ul>");
         };
         return Main;
     }());

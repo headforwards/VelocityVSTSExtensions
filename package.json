@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@types/q": "0.0.32",
-    "six-sigma-control-limits": "^1.0.0",
+    "six-sigma-control-limits": "^1.1.1",
     "vss-web-extension-sdk": "1.110.0"
   }
 }

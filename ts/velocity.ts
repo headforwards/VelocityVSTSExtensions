@@ -13,7 +13,8 @@ class Velocity {
     /**
      * The array of iterations in the project
      */
-    public iterations: Iteration[];
+    public iterations: Iteration[] = new Array<Iteration>();
+
     
     /**
      * Calculates a rolling average for the data array

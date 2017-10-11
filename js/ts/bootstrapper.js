@@ -4,23 +4,15 @@ define(["require", "exports", "./main", "TFS/Dashboards/WidgetHelpers"], functio
     var getData = function (context) {
         return {
             load: function (widgetSettings) {
-                console.log("Load function called");
-                console.log(widgetSettings);
-                console.log("Setting Widget Title to " + widgetSettings.name);
-                var $title = $('h2.title');
-                $title.text(widgetSettings.name);
-                var main = new Main();
-                main.getVelocityData();
+                Main.getTfsData(widgetSettings).then(function () {
+                    console.log("Data retrieved");
+                });
                 return WidgetHelpers.WidgetStatusHelper.Success();
             },
             reload: function (widgetSettings) {
-                console.log("Reload function called");
-                console.log(widgetSettings);
-                console.log("Setting Widget Title to " + widgetSettings.name);
-                var $title = $('h2.title');
-                $title.text(widgetSettings.name);
-                var main = new Main();
-                main.getVelocityData();
+                Main.getTfsData(widgetSettings).then(function () {
+                    console.log("Data retrieved");
+                });
                 return WidgetHelpers.WidgetStatusHelper.Success();
             }
         };

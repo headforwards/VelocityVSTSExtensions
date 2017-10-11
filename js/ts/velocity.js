@@ -3,6 +3,7 @@ define(["require", "exports", "../node_modules/six-sigma-control-limits/ts/math"
     var Velocity = (function () {
         function Velocity() {
             this.period = 5;
+            this.iterations = new Array();
         }
         Object.defineProperty(Velocity.prototype, "rollingAverage", {
             get: function () {

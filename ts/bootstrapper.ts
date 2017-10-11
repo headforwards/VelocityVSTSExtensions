@@ -2,36 +2,21 @@
 
 import Main = require("./main");
 import WidgetHelpers = require("TFS/Dashboards/WidgetHelpers");
+import Q = require("Q");
 
 var getData = (context) => {
     return {
         load: function (widgetSettings : any) {
-            console.log("Load function called");
-            console.log(widgetSettings);
-
-            console.log("Setting Widget Title to " + widgetSettings.name);
-            var $title = $('h2.title');
-            $title.text(widgetSettings.name);
-
-            var main : Main = new Main();
-            main.getVelocityData();
-
+            Main.getTfsData(widgetSettings).then( () => {
+                console.log("Data retrieved");
+            });
             return WidgetHelpers.WidgetStatusHelper.Success();
-            // main.getVelocityData();
         },
         reload: function (widgetSettings) {
-            console.log("Reload function called");
-            console.log(widgetSettings);
-
-            console.log("Setting Widget Title to " + widgetSettings.name);
-            var $title = $('h2.title');
-            $title.text(widgetSettings.name);
-
-            var main : Main = new Main();
-            main.getVelocityData();
-
+            Main.getTfsData(widgetSettings).then( () => {
+                console.log("Data retrieved");
+            });
             return WidgetHelpers.WidgetStatusHelper.Success();
-            // main.getVelocityData();
         }
     } 
 }
