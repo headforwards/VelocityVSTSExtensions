@@ -20,6 +20,21 @@ define(["require", "exports", "../node_modules/six-sigma-control-limits/ts/math"
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(Velocity.prototype, "rollingStDev", {
+            get: function () {
+                if (this.iterations === undefined) {
+                    return [0];
+                }
+                else {
+                    var data = this.iterations.map(function (iteration) {
+                        return iteration.totalPointsCompleted;
+                    });
+                    return MathHelper.movingFunction(data, this.period, MathHelper.standardDeviation);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Velocity.prototype, "average", {
             get: function () {
                 if (this.iterations === undefined) {

@@ -1,36 +1,76 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
-    <head>                          
-        <script src="./sdk/VSS.SDK.min.js"></script>      
-        <script type="text/javascript">
-            VSS.init({                        
-                explicitNotifyLoaded: true,
-                usePlatformStyles: true
-            });
 
-            VSS.require("TFS/Dashboards/WidgetHelpers", function (WidgetHelpers) {
-                VSS.register("VelocityControlChart.Configuration", function () {   
-                    return {
-                        load: function (widgetSettings, widgetConfigurationContext) {
-                            var settings = JSON.parse(widgetSettings.customSettings.data);
-                            console.log("The widget settings have been retrieved.");
-                            console.log(settings);
+<head>
+    <script src="./sdk/VSS.SDK.min.js"></script>
+    <script type="text/javascript">
+        VSS.init({
+            explicitNotifyLoaded: true,
+            usePlatformStyles: true
+        });
 
-                            return WidgetHelpers.WidgetStatusHelper.Success();
-                        },
-                        onSave: function() {
-                            var customSettings = {data: JSON.stringify({test: "hello world"})};
-                            return WidgetHelpers.WidgetConfigurationSave.Valid(customSettings); 
+        VSS.require("TFS/Dashboards/WidgetHelpers", function (WidgetHelpers) {
+
+            WidgetHelpers.IncludeWidgetConfigurationStyles();
+
+            VSS.register("VelocityControlChart.Configuration", function () {
+
+                var $chartTypeDropdown = $("#chart-type");
+
+                return {
+                    load: function (widgetSettings, widgetConfigurationContext) {
+
+                        var settings = JSON.parse(widgetSettings.customSettings.data);
+
+                        if (settings && settings.chartType) {
+                            $chartTypeDropdown.val(settings.chartType);
                         }
+
+                        // wire up the settings so any change fires an update for the widget
+                        $chartTypeDropdown.on("change", function () {
+
+                            var customSettings = {
+                                data: JSON.stringify({
+                                    chartType: $chartTypeDropdown.val()
+                                })
+                            };
+                            var eventName = WidgetHelpers.WidgetEvent.ConfigurationChange;
+                            var eventArgs = WidgetHelpers.WidgetEvent.Args(customSettings);
+                            widgetConfigurationContext.notify(eventName, eventArgs);
+                        });
+
+                        return WidgetHelpers.WidgetStatusHelper.Success();
+                    },
+                    onSave: function () {
+
+                        var customSettings = {
+                            data: JSON.stringify({
+                                chartType: $chartTypeDropdown.val()
+                            })
+                        };
+
+                        return WidgetHelpers.WidgetConfigurationSave.Valid(customSettings);
                     }
-                });
-                VSS.notifyLoadSucceeded();
+                }
             });
-        </script>       
-    </head>
-    <body>
-        <div class="container">
-               
+
+            VSS.notifyLoadSucceeded();
+        });
+    </script>
+</head>
+
+<body>
+    <div class="widget-configuration">
+        <div class="dropdown">
+            <label>Chart Type</label>
+            <div class="wrapper">
+                <select id="chart-type">                        
+                    <option value="velocity-chart">Standard Velocity Chart</option>
+                    <option value="control-chart">Velocity Control Chart</option>                           
+                </select>
+            </div>
         </div>
-    </body>
+    </div>
+</body>
+
 </html>

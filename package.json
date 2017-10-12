@@ -20,6 +20,7 @@
     "typescript": "^2.3.4"
   },
   "dependencies": {
+    "@types/google.visualization": "0.0.40",
     "@types/q": "0.0.32",
     "six-sigma-control-limits": "^1.1.1",
     "vss-web-extension-sdk": "1.110.0"

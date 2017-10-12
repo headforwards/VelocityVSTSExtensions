@@ -3,17 +3,23 @@ define(["require", "exports", "q", "TFS/Work/RestClient", "./velocity", "./itera
     var Main = (function () {
         function Main() {
         }
+        Main.logMessage = function (message) {
+            Main.progressMessage.empty();
+            Main.progressMessage.append("<p>" + message + "</p>");
+        };
+        Main.clearProgressMessage = function () {
+            Main.progressMessage.remove();
+            Main.progressIndicator.remove();
+        };
         Main.getTfsData = function (widgetSettings) {
-            var _this = this;
+            console.log(widgetSettings);
+            Main.logMessage("Retrieved widget settings");
             var deferred = Q.defer();
+            Main.logMessage("Retrieving velocity data");
             Main.getVelocityData().then(function (velocity) {
-                console.log("Load function called");
-                console.log(widgetSettings);
-                console.log("Setting Widget Title to " + widgetSettings.name);
-                var $title = $('h2.title');
-                $title.text(widgetSettings.name);
+                Main.logMessage("Retrieved velocity data");
                 Main.addVelocityDataToView(velocity);
-                deferred.resolve(_this);
+                deferred.resolve(velocity);
             });
             return deferred.promise;
         };
@@ -23,38 +29,32 @@ define(["require", "exports", "q", "TFS/Work/RestClient", "./velocity", "./itera
             var velocity;
             var workApiClient = Work_Client.getClient();
             var iterations = workApiClient.getTeamIterations(config.TeamContext());
+            Main.logMessage("Retrieving iterations");
             iterations.then(function (iteration) {
+                Main.logMessage("Retrieved iterations");
                 velocity = new Velocity();
                 iteration.forEach(function (element) {
                     velocity.iterations.push(new Iteration(element, config));
                 });
-                console.log("Now we can get the data from TFS");
-                console.log("There are " + velocity.iterations.length + " iterations in velocity");
+                Main.logMessage("There are " + velocity.iterations.length + " iterations");
                 var promises = [];
                 velocity.iterations.forEach(function (iteration) {
                     promises.push(iteration.getWorkItemInformation());
                 });
+                Main.logMessage("Retrieving iteration details");
                 Q.all(promises).then(function () {
-                    console.log("Retrieved all iterations");
-                    console.log(velocity);
                     deferred.resolve(velocity);
                 });
             });
             return deferred.promise;
         };
         Main.addVelocityDataToView = function (velocity) {
-            var $container = $('#iteration-info-container');
-            $container.empty();
-            $container.append("<p>There are <strong>" + velocity.iterations.length + "</strong> iterations in this project.</p>");
-            $container.append("<p>The average story size is <strong>" + velocity.average + "</strong></p>");
-            $container.append("<ul>");
-            velocity.iterations.forEach(function (element) {
-                $container.append("<li><strong>" + element.name + "</strong> [" + element.startDate + " - " + element.endDate + "]</li>");
-            }, this);
-            $container.append("</ul>");
+            Main.logMessage("Updating Velocity Statistics");
         };
         return Main;
     }());
+    Main.progressMessage = $("#progress-message");
+    Main.progressIndicator = $("#progress-indicator");
     return Main;
 });
 //# sourceMappingURL=main.js.map
