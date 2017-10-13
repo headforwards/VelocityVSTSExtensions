@@ -1,46 +1,34 @@
 define(["require", "exports"], function (require, exports) {
     "use strict";
     var TfsConfig = (function () {
-        function TfsConfig() {
-            this.Fields = [
-                "System.Id",
-                "System.Title",
-                "System.State",
-                "System.BoardColumn",
-                "Microsoft.VSTS.Scheduling.Effort",
-                "Microsoft.VSTS.Scheduling.StoryPoints",
-                "System.WorkItemType"
-            ];
-            this.NewStates = [
-                "new",
-                "approved",
-                "ready for review",
-                "1. new",
-                "2. ready for review",
-                "3. approved",
-            ];
-            this.CommittedStates = [
-                "committed",
-                "4. committed"
-            ];
-            this.CompletedStates = [
-                "deployed to staging",
-                "ready for release",
-                "ready for staging",
-                "ready for environments team",
-                "5. ready for environments team",
-                "6. deployed to staging",
-                "ready for uat"
-            ];
-            this.ClosedStates = [
-                "done",
-                "released/done",
-                "deployed to production",
-                "7. released/done",
-            ];
-            this.Effort = "Microsoft.VSTS.Scheduling.StoryPoints";
-            this.StateField = "System.BoardColumn";
+        function TfsConfig(newStates, committedStates, completedStates, closedStates, effortField, stateField, returnFields) {
+            this.NewStates = this.parseString(newStates, ",");
+            this.CommittedStates = this.parseString(committedStates, ",");
+            this.CompletedStates = this.parseString(completedStates, ",");
+            this.ClosedStates = this.parseString(closedStates, ",");
+            this.Fields = this.parseString(returnFields, ",");
+            var effort = (effortField === undefined) ? "" : effortField.trim();
+            if (effort == "vsts-effort") {
+                this.EffortField = "Microsoft.VSTS.Scheduling.StoryPoints";
+            }
+            else {
+                this.EffortField = "Microsoft.VSTS.Scheduling.Effort";
+            }
+            var state = (stateField === undefined) ? "" : stateField.trim();
+            if (state == "") {
+                this.StateField = "System.BoardColumn";
+            }
+            else {
+                this.StateField = "System.BoardColumn";
+            }
         }
+        TfsConfig.prototype.parseString = function (data, separator) {
+            if (data === undefined)
+                return [];
+            return data.split(separator).map(function (item) {
+                return item.trim();
+            });
+        };
         TfsConfig.prototype.TeamContext = function () {
             var ctx = VSS.getWebContext();
             return {

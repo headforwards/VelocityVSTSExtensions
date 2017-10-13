@@ -3,7 +3,7 @@ import WIT_Contracts = require("TFS/WorkItemTracking/Contracts");
 import WIT_Client = require("TFS/WorkItemTracking/RestClient");
 import Core_Contracts = require("TFS/Core/Contracts");
 import Q = require("q");
-import TfsConfig = require("./config");
+import ITfsConfig = require("./config");
 import MathHelper = require("../node_modules/six-sigma-control-limits/ts/math");
 
 class Iteration {
@@ -30,10 +30,10 @@ class Iteration {
     reportStartDate: Date;
     reportEndDate: Date;
 
-    private _context: TfsConfig;
+    private _context: ITfsConfig;
     private _tfsIteration: Work_Contracts.TeamSettingsIteration;
 
-    public constructor(iteration: Work_Contracts.TeamSettingsIteration, ctx: TfsConfig) {
+    public constructor(iteration: Work_Contracts.TeamSettingsIteration, ctx: ITfsConfig) {
 
         this._context = ctx;
         this._tfsIteration = iteration;
@@ -100,18 +100,18 @@ class Iteration {
             this.numberItems = (this.workItemsAtEnd.length > this.workItemsAtStart.length) ? this.workItemsAtEnd.length : this.workItemsAtStart.length;
 
             this.completedWorkItems = this.extractWorkItems(this.workItemsAtEnd, this._context.CompletedStates, this._context.StateField);
-            this.totalPointsCompleted = this.calculateWorkItemTotal(this.completedWorkItems, this._context.Effort);
+            this.totalPointsCompleted = this.calculateWorkItemTotal(this.completedWorkItems, this._context.EffortField);
 
-            this.totalPoints = this.calculateWorkItemTotal(this.workItemsAtEnd, this._context.Effort);
+            this.totalPoints = this.calculateWorkItemTotal(this.workItemsAtEnd, this._context.EffortField);
 
             this.committedWorkItems = this.extractWorkItems(this.workItemsAtStart, this._context.CommittedStates, this._context.StateField);
-            this.pointsCommitted = this.calculateWorkItemTotal(this.committedWorkItems, this._context.Effort);
+            this.pointsCommitted = this.calculateWorkItemTotal(this.committedWorkItems, this._context.EffortField);
 
             // TODO For all work items that are in a CLOSED state
             // loop through the history in reverse and capture any work items that were NEW or COMMITTED in this iteration
             // if there are matches add the points to the totalPointsCompleted variable
             this.closedWorkItems = this.extractWorkItems(this.workItemsAtEnd, this._context.ClosedStates, this._context.StateField);
-            this.totalPointsClosed = this.calculateWorkItemTotal(this.closedWorkItems, this._context.Effort);
+            this.totalPointsClosed = this.calculateWorkItemTotal(this.closedWorkItems, this._context.EffortField);
 
             // TODO calculate how many points the team committed at the start of the
             // iteration were completed at the end of the iteration

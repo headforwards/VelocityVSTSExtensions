@@ -52,12 +52,12 @@ define(["require", "exports", "TFS/WorkItemTracking/Contracts", "TFS/WorkItemTra
             else {
                 this.numberItems = (this.workItemsAtEnd.length > this.workItemsAtStart.length) ? this.workItemsAtEnd.length : this.workItemsAtStart.length;
                 this.completedWorkItems = this.extractWorkItems(this.workItemsAtEnd, this._context.CompletedStates, this._context.StateField);
-                this.totalPointsCompleted = this.calculateWorkItemTotal(this.completedWorkItems, this._context.Effort);
-                this.totalPoints = this.calculateWorkItemTotal(this.workItemsAtEnd, this._context.Effort);
+                this.totalPointsCompleted = this.calculateWorkItemTotal(this.completedWorkItems, this._context.EffortField);
+                this.totalPoints = this.calculateWorkItemTotal(this.workItemsAtEnd, this._context.EffortField);
                 this.committedWorkItems = this.extractWorkItems(this.workItemsAtStart, this._context.CommittedStates, this._context.StateField);
-                this.pointsCommitted = this.calculateWorkItemTotal(this.committedWorkItems, this._context.Effort);
+                this.pointsCommitted = this.calculateWorkItemTotal(this.committedWorkItems, this._context.EffortField);
                 this.closedWorkItems = this.extractWorkItems(this.workItemsAtEnd, this._context.ClosedStates, this._context.StateField);
-                this.totalPointsClosed = this.calculateWorkItemTotal(this.closedWorkItems, this._context.Effort);
+                this.totalPointsClosed = this.calculateWorkItemTotal(this.closedWorkItems, this._context.EffortField);
                 this.committedPointsCompleted = 0;
             }
         };

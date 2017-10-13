@@ -11,21 +11,30 @@ define(["require", "exports", "q", "TFS/Work/RestClient", "./velocity", "./itera
             Main.progressMessage.remove();
             Main.progressIndicator.remove();
         };
-        Main.getTfsData = function (widgetSettings) {
+        Main.loadWidgetSettings = function (widgetSettings) {
             console.log(widgetSettings);
             Main.logMessage("Retrieved widget settings");
+            var settings = JSON.parse(widgetSettings.customSettings.data);
+            if (settings) {
+                return new TfsConfig(settings.unstartedWorkFields, settings.committedWorkFields, settings.completedWorkFields, settings.closedWorkFields, settings.effortField, settings.stateField, "System.Id,System.Title,System.State,System.BoardColumn,Microsoft.VSTS.Scheduling.Effort,Microsoft.VSTS.Scheduling.StoryPoints,System.WorkItemType");
+            }
+            else {
+                return new TfsConfig("approved,ready for review,1. new,2. ready for review,3. approved", "committed,4. committed", "deployed to staging,ready for release,ready for staging,ready for environments team,5. ready for environments team,6. deployed to staging,ready for uat", "done,released/done,deployed to production,7. released/done", "Microsoft.VSTS.Scheduling.Effort", "System.BoardColumn", "System.Id,System.Title,System.State,System.BoardColumn,Microsoft.VSTS.Scheduling.Effort,Microsoft.VSTS.Scheduling.StoryPoints,System.WorkItemType");
+            }
+        };
+        Main.getTfsData = function (widgetSettings) {
+            var config = this.loadWidgetSettings(widgetSettings);
             var deferred = Q.defer();
             Main.logMessage("Retrieving velocity data");
-            Main.getVelocityData().then(function (velocity) {
+            Main.getVelocityData(config).then(function (velocity) {
                 Main.logMessage("Retrieved velocity data");
                 Main.addVelocityDataToView(velocity);
                 deferred.resolve(velocity);
             });
             return deferred.promise;
         };
-        Main.getVelocityData = function () {
+        Main.getVelocityData = function (config) {
             var deferred = Q.defer();
-            var config = new TfsConfig();
             var velocity;
             var workApiClient = Work_Client.getClient();
             var iterations = workApiClient.getTeamIterations(config.TeamContext());
