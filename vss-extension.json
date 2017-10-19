@@ -1,7 +1,7 @@
 {
     "manifestVersion": 1,
     "id": "velocity-control-chart-extensions",
-    "version": "0.2.1",
+    "version": "0.2.5",
     "name": "Velocity Control Chart Extensions",
     "description": "VSTS extensions to analyse team velocity to highlight anomalies.",
     "publisher": "headforwards",
