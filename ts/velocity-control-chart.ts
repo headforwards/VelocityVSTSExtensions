@@ -1,8 +1,9 @@
 /// <reference path="../node_modules/@types/google.visualization/index.d.ts" />
 
 import Velocity = require("./velocity");
+import IVelocityChart = require("./chart-interface");
 
-class VelocityControlChart {
+class VelocityControlChart implements IVelocityChart {
 
     data: google.visualization.DataTable;
     outputLocation: Element;
@@ -16,28 +17,28 @@ class VelocityControlChart {
 
         this.data.addColumn("string", "Iteration");
         this.data.addColumn("number", "Points Completed");
-        this.data.addColumn({ type: "string", role: "annotation" });
-        this.data.addColumn({ type: "string", role: "annotationText" });
-        this.data.addColumn({ type: "string", role: "annotation" });
-        this.data.addColumn({ type: "string", role: "annotationText" });
-        this.data.addColumn({ type: "string", role: "annotation" });
-        this.data.addColumn({ type: "string", role: "annotationText" });
-        this.data.addColumn({ type: "string", role: "annotation" });
-        this.data.addColumn({ type: "string", role: "annotationText" });
-        this.data.addColumn({ type: "string", role: "annotation" });
-        this.data.addColumn({ type: "string", role: "annotationText" });
-        this.data.addColumn({ type: "string", role: "annotation" });
-        this.data.addColumn({ type: "string", role: "annotationText" });
-        this.data.addColumn({ type: "string", role: "annotation" });
-        this.data.addColumn({ type: "string", role: "annotationText" });
-        this.data.addColumn({ type: "string", role: "annotation" });
-        this.data.addColumn({ type: "string", role: "annotationText" });
-        this.data.addColumn({ type: "string", role: "annotation" });
-        this.data.addColumn({ type: "string", role: "annotationText" });
-        this.data.addColumn({ type: "string", role: "annotation" });
-        this.data.addColumn({ type: "string", role: "annotationText" });
-        this.data.addColumn({ type: "string", role: "annotation" });
-        this.data.addColumn({ type: "string", role: "annotationText" });
+        this.data.addColumn({ type: "string", role: "annotation", label: "anyPointGreaterThanThreeSigmaLimit" });
+        this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+        this.data.addColumn({ type: "string", role: "annotation", label: "twoConsecutivePointsAboveTwoSigmaLimit" });
+        this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+        this.data.addColumn({ type: "string", role: "annotation", label: "threeConsecutivePointsAboveOneSigmaLimit" });
+        this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+        this.data.addColumn({ type: "string", role: "annotation", label: "sevenConsecutivePointsFallingAboveCL" });
+        this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+        this.data.addColumn({ type: "string", role: "annotation", label: "tenConsecutivePointsFallingBelowCL" });
+        this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+        this.data.addColumn({ type: "string", role: "annotation", label: "fourConsecutivePointsBelowTwoSigmaLowerLimit" });
+        this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+        this.data.addColumn({ type: "string", role: "annotation", label: "sixConsecutivePointsBelowOneSigmaLowerLimit" });
+        this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+        this.data.addColumn({ type: "string", role: "annotation", label: "sixPointsInARowContinuallyIncresingOrDecresing" });
+        this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+        this.data.addColumn({ type: "string", role: "annotation", label: "fourteenPointsInARowAlternateUpAndDown" });
+        this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+        this.data.addColumn({ type: "string", role: "annotation", label: "fifteenPointsInARowWithinOneSigmaLimitOnEitherSideOfCentreLine" });
+        this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+        this.data.addColumn({ type: "string", role: "annotation", label: "eightPointsInARowOutsideOneSigmaOfCentreLineAndPointsAreBothSideOfCentreLine" });
+        this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
         this.data.addColumn({ type: "string", role: "style" });
         this.data.addColumn("number", "CL");
         this.data.addColumn("number", "1σ LCL");
@@ -106,31 +107,9 @@ class VelocityControlChart {
     }
 
     public draw() {
-        // resize the chart location so that the chart resizes correctly
-        var chartHeight: number = 300;
-        var containerHeight = window.innerHeight;
-        chartHeight = containerHeight * 0.9;
-        this.outputLocation.setAttribute("style", "height: " + chartHeight + "px;");
 
-        var comboChart = new google.visualization.LineChart(this.outputLocation);
-        comboChart.draw(this.data, this.options);
-    }
-
-    public controlLimitFormat(sigma: number) {
-
-        return {
-            type: "line",
-            color: "#3375FF", // blue
-            pointsVisible: false,
-            lineWidth: 2,
-            lineDashStyle: [sigma, sigma],
-            visibleInLegend: true
-        }
-    }
-
-    get options(): google.visualization.LineChartOptions {
-        // configure the Google Chart options object
-        return {
+        // set the required chart options
+        let options: google.visualization.LineChartOptions = {
             legend: {
                 position: "bottom",
                 textStyle: {
@@ -204,6 +183,28 @@ class VelocityControlChart {
                 7: this.controlLimitFormat(3) // 3 Sigma HIGH
             }
         };
+
+        // resize the chart location so that the chart resizes correctly
+        var chartHeight: number = 300;
+        var containerHeight = window.innerHeight;
+        chartHeight = containerHeight * 0.9;
+        this.outputLocation.setAttribute("style", "height: " + chartHeight + "px;");
+
+        // draw the chart
+        var comboChart = new google.visualization.LineChart(this.outputLocation);
+        comboChart.draw(this.data, options);
+    }
+
+    private controlLimitFormat(sigma: number) {
+
+        return {
+            type: "line",
+            color: "#3375FF", // blue
+            pointsVisible: false,
+            lineWidth: 2,
+            lineDashStyle: [sigma, sigma],
+            visibleInLegend: true
+        }
     }
 }
 export = VelocityControlChart;

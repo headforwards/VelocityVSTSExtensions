@@ -1,54 +1,46 @@
-define(["require", "exports", "./main", "TFS/Dashboards/WidgetHelpers", "./velocity-chart", "./velocity-control-chart"], function (require, exports, Main, WidgetHelpers, VelocityChart, VelocityControlChart) {
+define(["require", "exports", "./main", "TFS/Dashboards/WidgetHelpers", "./velocity-chart", "./velocity-control-chart", "./velocity-data-table", "./velocity-control-data-table"], function (require, exports, Main, WidgetHelpers, VelocityChart, VelocityControlChart, VelocityChartDataTable, VelocityControlChartDataTable) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var velocityChart;
-    var controlChart;
-    var projectVelocity;
+    var chart;
     function drawCharts() {
-        if (velocityChart != undefined) {
-            velocityChart.draw();
+        if (chart != undefined) {
+            chart.draw();
         }
-        if (controlChart != undefined) {
-            controlChart.draw();
+    }
+    function processTfsData(widgetSettings, velocity) {
+        var settings = JSON.parse(widgetSettings.customSettings.data);
+        if (settings && settings.chartType == "control-chart") {
+            chart = new VelocityControlChart(velocity, "plot-chart", widgetSettings.name);
         }
+        else if (settings && settings.chartType == "control-data") {
+            chart = new VelocityControlChartDataTable(velocity, "plot-chart", widgetSettings.name);
+        }
+        else if (settings && settings.chartType == "velocity-data") {
+            chart = new VelocityChartDataTable(velocity, "plot-chart", widgetSettings.name);
+        }
+        else {
+            chart = new VelocityChart(velocity, "plot-chart", widgetSettings.name);
+        }
+        drawCharts();
+        Main.clearProgressMessage();
     }
     var getData = function (context) {
         return {
             load: function (widgetSettings) {
-                var _this = this;
                 Main.getTfsData(widgetSettings).then(function (velocity) {
-                    _this.projectVelocity = velocity;
-                    var settings = JSON.parse(widgetSettings.customSettings.data);
-                    if (settings && settings.chartType == "control-chart") {
-                        controlChart = new VelocityControlChart(_this.projectVelocity, "plot-chart", widgetSettings.name);
-                    }
-                    else {
-                        velocityChart = new VelocityChart(_this.projectVelocity, "plot-chart", widgetSettings.name);
-                    }
-                    drawCharts();
-                    Main.clearProgressMessage();
+                    processTfsData(widgetSettings, velocity);
                 });
                 return WidgetHelpers.WidgetStatusHelper.Success();
             },
             reload: function (widgetSettings) {
-                var _this = this;
                 Main.getTfsData(widgetSettings).then(function (velocity) {
-                    _this.projectVelocity = velocity;
-                    var settings = JSON.parse(widgetSettings.customSettings.data);
-                    if (settings && settings.chartType == "control-chart") {
-                        controlChart = new VelocityControlChart(_this.projectVelocity, "plot-chart", widgetSettings.name);
-                    }
-                    else {
-                        velocityChart = new VelocityChart(_this.projectVelocity, "plot-chart", widgetSettings.name);
-                    }
-                    drawCharts();
-                    Main.clearProgressMessage();
+                    processTfsData(widgetSettings, velocity);
                 });
                 return WidgetHelpers.WidgetStatusHelper.Success();
             }
         };
     };
-    google.charts.load('current', { 'packages': ['corechart', 'bar', 'line'] });
+    google.charts.load('current', { 'packages': ['corechart', 'bar', 'line', 'table'] });
     google.charts.setOnLoadCallback(drawCharts);
     var extensionContext = VSS.getExtensionContext();
     VSS.register(extensionContext.publisherId + "." + extensionContext.extensionId + ".VelocityControlChart", getData);

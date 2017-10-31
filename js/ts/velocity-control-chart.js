@@ -9,28 +9,28 @@ define(["require", "exports"], function (require, exports) {
             this.data = new google.visualization.DataTable();
             this.data.addColumn("string", "Iteration");
             this.data.addColumn("number", "Points Completed");
-            this.data.addColumn({ type: "string", role: "annotation" });
-            this.data.addColumn({ type: "string", role: "annotationText" });
-            this.data.addColumn({ type: "string", role: "annotation" });
-            this.data.addColumn({ type: "string", role: "annotationText" });
-            this.data.addColumn({ type: "string", role: "annotation" });
-            this.data.addColumn({ type: "string", role: "annotationText" });
-            this.data.addColumn({ type: "string", role: "annotation" });
-            this.data.addColumn({ type: "string", role: "annotationText" });
-            this.data.addColumn({ type: "string", role: "annotation" });
-            this.data.addColumn({ type: "string", role: "annotationText" });
-            this.data.addColumn({ type: "string", role: "annotation" });
-            this.data.addColumn({ type: "string", role: "annotationText" });
-            this.data.addColumn({ type: "string", role: "annotation" });
-            this.data.addColumn({ type: "string", role: "annotationText" });
-            this.data.addColumn({ type: "string", role: "annotation" });
-            this.data.addColumn({ type: "string", role: "annotationText" });
-            this.data.addColumn({ type: "string", role: "annotation" });
-            this.data.addColumn({ type: "string", role: "annotationText" });
-            this.data.addColumn({ type: "string", role: "annotation" });
-            this.data.addColumn({ type: "string", role: "annotationText" });
-            this.data.addColumn({ type: "string", role: "annotation" });
-            this.data.addColumn({ type: "string", role: "annotationText" });
+            this.data.addColumn({ type: "string", role: "annotation", label: "anyPointGreaterThanThreeSigmaLimit" });
+            this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+            this.data.addColumn({ type: "string", role: "annotation", label: "twoConsecutivePointsAboveTwoSigmaLimit" });
+            this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+            this.data.addColumn({ type: "string", role: "annotation", label: "threeConsecutivePointsAboveOneSigmaLimit" });
+            this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+            this.data.addColumn({ type: "string", role: "annotation", label: "sevenConsecutivePointsFallingAboveCL" });
+            this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+            this.data.addColumn({ type: "string", role: "annotation", label: "tenConsecutivePointsFallingBelowCL" });
+            this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+            this.data.addColumn({ type: "string", role: "annotation", label: "fourConsecutivePointsBelowTwoSigmaLowerLimit" });
+            this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+            this.data.addColumn({ type: "string", role: "annotation", label: "sixConsecutivePointsBelowOneSigmaLowerLimit" });
+            this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+            this.data.addColumn({ type: "string", role: "annotation", label: "sixPointsInARowContinuallyIncresingOrDecresing" });
+            this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+            this.data.addColumn({ type: "string", role: "annotation", label: "fourteenPointsInARowAlternateUpAndDown" });
+            this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+            this.data.addColumn({ type: "string", role: "annotation", label: "fifteenPointsInARowWithinOneSigmaLimitOnEitherSideOfCentreLine" });
+            this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
+            this.data.addColumn({ type: "string", role: "annotation", label: "eightPointsInARowOutsideOneSigmaOfCentreLineAndPointsAreBothSideOfCentreLine" });
+            this.data.addColumn({ type: "string", role: "annotationText", label: "Control Limit Description" });
             this.data.addColumn({ type: "string", role: "style" });
             this.data.addColumn("number", "CL");
             this.data.addColumn("number", "1σ LCL");
@@ -93,12 +93,85 @@ define(["require", "exports"], function (require, exports) {
             });
         }
         VelocityControlChart.prototype.draw = function () {
+            var options = {
+                legend: {
+                    position: "bottom",
+                    textStyle: {
+                        fontSize: 10
+                    }
+                },
+                chartArea: {
+                    width: "90%",
+                    height: "70%"
+                },
+                hAxis: {
+                    slantedText: true,
+                    slantedTextAngle: 90,
+                    showTextEvery: 1,
+                    minorGridlines: {
+                        count: 1
+                    },
+                    title: "Iteration",
+                    titleTextStyle: {
+                        fontSize: 10,
+                        bold: true,
+                        italic: false
+                    },
+                    textStyle: {
+                        fontSize: 10
+                    }
+                },
+                vAxis: {
+                    title: "Story Points",
+                    textStyle: {
+                        fontSize: 10
+                    },
+                    titleTextStyle: {
+                        fontSize: 10,
+                        bold: true,
+                        italic: false
+                    }
+                },
+                annotations: {
+                    style: "point",
+                    highContrast: true,
+                    textStyle: {
+                        fontSize: 24,
+                        bold: true,
+                        italic: false,
+                        color: "#FF0000"
+                    },
+                    boxStyle: {},
+                    stem: {
+                        length: 0,
+                        color: "#FF0000"
+                    }
+                },
+                series: {
+                    0: {
+                        type: "line",
+                        color: "#33FF57",
+                        pointsVisible: true,
+                        pointSize: 5,
+                        pointShape: "diamond",
+                        pointColor: "#FF0000",
+                        lineWidth: 2
+                    },
+                    1: this.controlLimitFormat(0),
+                    2: this.controlLimitFormat(1),
+                    3: this.controlLimitFormat(1),
+                    4: this.controlLimitFormat(2),
+                    5: this.controlLimitFormat(2),
+                    6: this.controlLimitFormat(3),
+                    7: this.controlLimitFormat(3)
+                }
+            };
             var chartHeight = 300;
             var containerHeight = window.innerHeight;
             chartHeight = containerHeight * 0.9;
             this.outputLocation.setAttribute("style", "height: " + chartHeight + "px;");
             var comboChart = new google.visualization.LineChart(this.outputLocation);
-            comboChart.draw(this.data, this.options);
+            comboChart.draw(this.data, options);
         };
         VelocityControlChart.prototype.controlLimitFormat = function (sigma) {
             return {
@@ -110,85 +183,6 @@ define(["require", "exports"], function (require, exports) {
                 visibleInLegend: true
             };
         };
-        Object.defineProperty(VelocityControlChart.prototype, "options", {
-            get: function () {
-                return {
-                    legend: {
-                        position: "bottom",
-                        textStyle: {
-                            fontSize: 10
-                        }
-                    },
-                    chartArea: {
-                        width: "90%",
-                        height: "70%"
-                    },
-                    hAxis: {
-                        slantedText: true,
-                        slantedTextAngle: 90,
-                        showTextEvery: 1,
-                        minorGridlines: {
-                            count: 1
-                        },
-                        title: "Iteration",
-                        titleTextStyle: {
-                            fontSize: 10,
-                            bold: true,
-                            italic: false
-                        },
-                        textStyle: {
-                            fontSize: 10
-                        }
-                    },
-                    vAxis: {
-                        title: "Story Points",
-                        textStyle: {
-                            fontSize: 10
-                        },
-                        titleTextStyle: {
-                            fontSize: 10,
-                            bold: true,
-                            italic: false
-                        }
-                    },
-                    annotations: {
-                        style: "point",
-                        highContrast: true,
-                        textStyle: {
-                            fontSize: 24,
-                            bold: true,
-                            italic: false,
-                            color: "#FF0000"
-                        },
-                        boxStyle: {},
-                        stem: {
-                            length: 0,
-                            color: "#FF0000"
-                        }
-                    },
-                    series: {
-                        0: {
-                            type: "line",
-                            color: "#33FF57",
-                            pointsVisible: true,
-                            pointSize: 5,
-                            pointShape: "diamond",
-                            pointColor: "#FF0000",
-                            lineWidth: 2
-                        },
-                        1: this.controlLimitFormat(0),
-                        2: this.controlLimitFormat(1),
-                        3: this.controlLimitFormat(1),
-                        4: this.controlLimitFormat(2),
-                        5: this.controlLimitFormat(2),
-                        6: this.controlLimitFormat(3),
-                        7: this.controlLimitFormat(3)
-                    }
-                };
-            },
-            enumerable: true,
-            configurable: true
-        });
         return VelocityControlChart;
     }());
     return VelocityControlChart;

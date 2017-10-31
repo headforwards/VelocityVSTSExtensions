@@ -6,57 +6,48 @@ import Q = require("Q");
 import Velocity = require("./velocity");
 import VelocityChart = require("./velocity-chart");
 import VelocityControlChart = require("./velocity-control-chart");
+import VelocityChartDataTable = require("./velocity-data-table");
+import VelocityControlChartDataTable = require("./velocity-control-data-table");
+import IVelocityChart = require("./chart-interface");
 
-var velocityChart: VelocityChart;
-var controlChart: VelocityControlChart;
-var projectVelocity: Velocity;
+var chart: IVelocityChart;
 
 function drawCharts() {
-    if (velocityChart != undefined) {
-        velocityChart.draw();
+    if (chart != undefined) {
+        chart.draw();
+    }
+}
+
+function processTfsData(widgetSettings: any, velocity: Velocity) {
+
+    var settings = JSON.parse(widgetSettings.customSettings.data);
+
+    if (settings && settings.chartType == "control-chart") {
+        chart = new VelocityControlChart(velocity, "plot-chart", widgetSettings.name)
+    } else if (settings && settings.chartType == "control-data") {
+        chart = new VelocityControlChartDataTable(velocity, "plot-chart", widgetSettings.name)
+    } else if (settings && settings.chartType == "velocity-data") {
+        chart = new VelocityChartDataTable(velocity, "plot-chart", widgetSettings.name)
+    } else {
+        chart = new VelocityChart(velocity, "plot-chart", widgetSettings.name);
     }
 
-    if (controlChart != undefined) {
-        controlChart.draw();
-    }
+    drawCharts();
+    Main.clearProgressMessage();
 }
 
 var getData = (context) => {
     return {
         load: function (widgetSettings: any) {
             Main.getTfsData(widgetSettings).then((velocity: Velocity) => {
-
-                this.projectVelocity = velocity;
-
-                var settings = JSON.parse(widgetSettings.customSettings.data);
-
-                if (settings && settings.chartType == "control-chart") {
-                    controlChart = new VelocityControlChart(this.projectVelocity, "plot-chart", widgetSettings.name)
-                } else {
-                    velocityChart = new VelocityChart(this.projectVelocity, "plot-chart", widgetSettings.name);
-                }
-
-                drawCharts();
-                Main.clearProgressMessage();
+                processTfsData(widgetSettings, velocity);
             });
             return WidgetHelpers.WidgetStatusHelper.Success();
         },
         reload: function (widgetSettings) {
 
             Main.getTfsData(widgetSettings).then((velocity: Velocity) => {
-
-                this.projectVelocity = velocity;
-
-                var settings = JSON.parse(widgetSettings.customSettings.data);
-
-                if (settings && settings.chartType == "control-chart") {
-                    controlChart = new VelocityControlChart(this.projectVelocity, "plot-chart", widgetSettings.name)
-                } else {
-                    velocityChart = new VelocityChart(this.projectVelocity, "plot-chart", widgetSettings.name);
-                }
-
-                drawCharts();
-                Main.clearProgressMessage();
+                processTfsData(widgetSettings, velocity);
             });
             return WidgetHelpers.WidgetStatusHelper.Success();
         }
@@ -65,7 +56,7 @@ var getData = (context) => {
 
 // register the google chart libraries
 // Load the Visualization API and the corechart package.
-google.charts.load('current', { 'packages': ['corechart', 'bar', 'line'] });
+google.charts.load('current', { 'packages': ['corechart', 'bar', 'line', 'table'] });
 // Set a callback to run when the Google Visualization API is loaded.
 google.charts.setOnLoadCallback(drawCharts);
 

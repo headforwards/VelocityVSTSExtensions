@@ -289,3 +289,4 @@ __pycache__/
 
 # Visual Studio Extension output
 *.vsix
+docs/generate-images.xlsx

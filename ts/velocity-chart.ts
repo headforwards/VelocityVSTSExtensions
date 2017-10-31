@@ -1,8 +1,9 @@
 /// <reference path="../node_modules/@types/google.visualization/index.d.ts" />
 
 import Velocity = require("./velocity");
+import IVelocityChart = require("./chart-interface");
 
-class VelocityChart {
+class VelocityChart implements IVelocityChart {
 
     data: google.visualization.DataTable;
     outputLocation: Element;
@@ -17,10 +18,10 @@ class VelocityChart {
         this.data.addColumn("string", "Iteration"); // iteration.name
         this.data.addColumn("number", "Points Completed"); // iteration.pointsCompleted
         this.data.addColumn("number", "Average Velocity"); // velocity.rollingAverage
-        this.data.addColumn({ type: "string", role: "annotation" });
-        this.data.addColumn({ type: "string", role: "annotationText" });
-        this.data.addColumn({ type: "number", role: "interval" }); // velocity.rollingAverage[n] - velocity.rollingStDev[n]
-        this.data.addColumn({ type: "number", role: "interval" }); // velocity.rollingAverage[n] + velocity.rollingStDev[n]
+        this.data.addColumn({ type: "string", role: "annotation", label: "Annotation Indicator" });
+        this.data.addColumn({ type: "string", role: "annotationText", label: "Annotation Tooltip" });
+        this.data.addColumn({ type: "number", role: "interval", label: "Rolling Average Velocity LOW" }); // velocity.rollingAverage[n] - velocity.rollingStDev[n]
+        this.data.addColumn({ type: "number", role: "interval", label: "Rolling Average Velocity HIGH" }); // velocity.rollingAverage[n] + velocity.rollingStDev[n]
 
         let counter = 0;
         velocity.iterations.forEach((iteration) => {
@@ -38,19 +39,9 @@ class VelocityChart {
     }
 
     public draw() {
-        // resize the chart location so that the chart resizes correctly
-        var chartHeight: number = 300;
-        var containerHeight = window.innerHeight;
-        chartHeight = containerHeight * 0.9;
-        this.outputLocation.setAttribute("style", "height: " + chartHeight + "px;");
 
-        var comboChart = new google.visualization.ComboChart(this.outputLocation);
-        comboChart.draw(this.data, this.options);
-    }
-
-    get options(): google.visualization.ComboChartOptions {
-        // configure the Google Chart options object
-        return {
+        // configure the required chart options
+        let options: google.visualization.ComboChartOptions = {
             title: this.title,
             chartArea: {
                 width: "90%",
@@ -114,7 +105,7 @@ class VelocityChart {
                     length: 0,
                     color: "#3375FF" // blue
                 }
-
+    
             },
             series: {
                 0: {
@@ -143,6 +134,18 @@ class VelocityChart {
                 }
             }
         };
+
+        // resize the chart location so that the chart resizes correctly
+        var chartHeight: number = 300;
+        var containerHeight = window.innerHeight;
+        chartHeight = containerHeight * 0.9;
+        this.outputLocation.setAttribute("style", "height: " + chartHeight + "px;");
+
+        // draw the chart
+        var comboChart = new google.visualization.ComboChart(this.outputLocation);
+        comboChart.draw(this.data, options);
     }
+
+
 }
 export = VelocityChart;
