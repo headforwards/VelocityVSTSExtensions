@@ -1,4 +1,4 @@
-define(["require", "exports", "TFS/WorkItemTracking/Contracts", "TFS/WorkItemTracking/RestClient", "q", "../node_modules/six-sigma-control-limits/ts/math"], function (require, exports, WIT_Contracts, WIT_Client, Q, MathHelper) {
+define(["require", "exports", "q", "../node_modules/six-sigma-control-limits/ts/math", "./vsts-api"], function (require, exports, Q, MathHelper, VSTSApi) {
     "use strict";
     var Iteration = (function () {
         function Iteration(iteration, ctx) {
@@ -7,6 +7,7 @@ define(["require", "exports", "TFS/WorkItemTracking/Contracts", "TFS/WorkItemTra
             this.committedWorkItems = new Array();
             this.completedWorkItems = new Array();
             this.closedWorkItems = new Array();
+            this.completedAndClosedWorkItems = new Array();
             this._context = ctx;
             this._tfsIteration = iteration;
             this.id = iteration.id;
@@ -27,10 +28,10 @@ define(["require", "exports", "TFS/WorkItemTracking/Contracts", "TFS/WorkItemTra
                 var endIds = _this.extractIdsFromQueryResult(promiseResponse[0]);
                 var detailsPromises = [];
                 if (startIds.length > 0) {
-                    detailsPromises.push(_this.getWorkItemDetails(startIds, _this.reportStartDate));
+                    detailsPromises.push(VSTSApi.getWorkItemDetails(startIds, _this._context.Fields, _this.reportStartDate));
                 }
                 if (endIds.length > 0) {
-                    detailsPromises.push(_this.getWorkItemDetails(endIds, _this.reportEndDate));
+                    detailsPromises.push(VSTSApi.getWorkItemDetails(endIds, _this._context.Fields, _this.reportEndDate));
                 }
                 Q.all(detailsPromises).then(function (responses) {
                     if (responses[0] != undefined) {
@@ -39,14 +40,16 @@ define(["require", "exports", "TFS/WorkItemTracking/Contracts", "TFS/WorkItemTra
                     if (responses[1] != undefined) {
                         _this.workItemsAtEnd = responses[1];
                     }
-                    _this.calculateMetrics();
-                    deferred.resolve(_this);
+                    _this.getWorkItemsCompletedAndClosedInIteration(_this.workItemsAtEnd).then(function () {
+                        _this.calculateMetrics();
+                        deferred.resolve(_this);
+                    });
                 });
             });
             return deferred.promise;
         };
         Iteration.prototype.calculateMetrics = function () {
-            if (this.workItemsAtEnd === undefined || this.workItemsAtStart === undefined || this._context == undefined) {
+            if (this.workItemsAtEnd === undefined || this.workItemsAtStart === undefined || this._context === undefined || this.completedAndClosedWorkItems === undefined) {
                 throw Error("One or more required properties are undefined.");
             }
             else {
@@ -58,35 +61,60 @@ define(["require", "exports", "TFS/WorkItemTracking/Contracts", "TFS/WorkItemTra
                 this.pointsCommitted = this.calculateWorkItemTotal(this.committedWorkItems, this._context.EffortField);
                 this.closedWorkItems = this.extractWorkItems(this.workItemsAtEnd, this._context.ClosedStates, this._context.StateField);
                 this.totalPointsClosed = this.calculateWorkItemTotal(this.closedWorkItems, this._context.EffortField);
+                var completedAndClosedPoints = this.calculateWorkItemTotal(this.completedAndClosedWorkItems, this._context.EffortField);
+                this.totalPointsCompleted += completedAndClosedPoints;
                 this.committedPointsCompleted = 0;
             }
         };
-        Iteration.prototype.getWorkItemDetails = function (ids, date) {
-            if (ids.length === 0) {
-                return;
-            }
-            var client = WIT_Client.getClient();
-            var expand = WIT_Contracts.WorkItemExpand.None;
-            var errorPolicy = WIT_Contracts.WorkItemErrorPolicy.Omit;
-            return client.getWorkItems(ids, this._context.Fields, date, expand, errorPolicy);
+        Iteration.prototype.getWorkItemsCompletedAndClosedInIteration = function (workItems) {
+            var _this = this;
+            var deferred = Q.defer();
+            var promises = [];
+            var closedWorkItems = this.extractWorkItems(workItems, this._context.ClosedStates, this._context.StateField);
+            promises = closedWorkItems.map(function (value, index, array) {
+                return VSTSApi.getWorkItemRevisions(value.id);
+            });
+            Q.all(promises).then(function (responses) {
+                var committedAndCompletedStates = _this._context.CommittedStates.concat(_this._context.CompletedStates);
+                if (responses != undefined) {
+                    responses.forEach(function (element) {
+                        var revisions = element;
+                        if (_this.workItemComittedDuringIteration(revisions, committedAndCompletedStates, _this._context.StateField, _this.startDate)) {
+                            _this.completedAndClosedWorkItems.push(revisions[0]);
+                        }
+                    });
+                }
+                deferred.resolve(_this);
+            });
+            return deferred.promise;
         };
-        ;
         Iteration.prototype.getWorkItemRefsInIterationAtStart = function () {
             this.reportStartDate = this._tfsIteration.attributes.startDate.getNextWeekDayAtMidday();
-            return this.getWorkItemReferencesInIterationAtDate(this.reportStartDate);
+            return VSTSApi.getWorkItemReferencesInIterationAtDate(this.reportStartDate, this._tfsIteration.path, this._context.TeamContext().projectId);
         };
         ;
         Iteration.prototype.getWorkItemRefsInIterationAtEnd = function () {
             this.reportEndDate = this._tfsIteration.attributes.finishDate.endOfDay();
-            return this.getWorkItemReferencesInIterationAtDate(this.reportEndDate);
+            return VSTSApi.getWorkItemReferencesInIterationAtDate(this.reportEndDate, this._tfsIteration.path, this._context.TeamContext().projectId);
         };
         ;
-        Iteration.prototype.getWorkItemReferencesInIterationAtDate = function (asOfDate) {
-            var query = { query: "" };
-            query.query = "SELECT [System.Id] From WorkItems WHERE ([System.WorkItemType] = 'User Story' OR [System.WorkItemType] = 'Product Backlog Item' OR [System.WorkItemType] = 'Defect' OR [System.WorkItemType] = 'Bug') AND [Iteration Path] = '" +
-                this._tfsIteration.path + "' ASOF '" +
-                asOfDate.toISOString() + "'";
-            return WIT_Client.getClient().queryByWiql(query, this._context.TeamContext().projectId);
+        Iteration.prototype.workItemComittedDuringIteration = function (workItemRevisions, states, stateField, iterationStartDate) {
+            var foundMatch = false;
+            for (var i = workItemRevisions.length; i > 0; i--) {
+                if (foundMatch)
+                    break;
+                var rev = workItemRevisions[i - 1];
+                var changedDate = rev.fields["System.ChangedDate"];
+                if (changedDate < iterationStartDate) {
+                    break;
+                }
+                if (rev.fields[stateField] != undefined &&
+                    states.indexOf(rev.fields[stateField].toLowerCase()) >= 0) {
+                    foundMatch = true;
+                    break;
+                }
+            }
+            return foundMatch;
         };
         ;
         Iteration.prototype.extractIdsFromQueryResult = function (queryResult) {
@@ -94,6 +122,7 @@ define(["require", "exports", "TFS/WorkItemTracking/Contracts", "TFS/WorkItemTra
                 return wi.id;
             });
         };
+        ;
         Iteration.prototype.extractWorkItems = function (workItems, states, stateField) {
             var wis = workItems.map(function (wi) {
                 if (wi.fields[stateField] != undefined && states.indexOf(wi.fields[stateField].toLowerCase()) >= 0) {
