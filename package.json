@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "package": "del *.vsix && tfx extension create --manifest-globs vss-extension.json --rev-version",
-    "prebuild": "rmdir /s /q .\\js",
+    "prebuild": "if exist .\\js\\ rmdir /s /q .\\js",
     "build": "tsc -p .",
     "postbuild": "npm run test && npm run package",
     "test": "cross-env TS_NODE_COMPILER_OPTIONS={\\\"module\\\":\\\"commonjs\\\"} mocha -r ts-node/register ts/tests/**/*.spec.ts",

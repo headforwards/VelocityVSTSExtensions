@@ -4,6 +4,7 @@
         // "outFile": "./js/app.js",
         "outDir": "./js",
         "module": "amd", 
+        "moduleResolution": "node",
         "sourceMap": true,
         "removeComments": true,
         // "noImplicitAny" : true,
