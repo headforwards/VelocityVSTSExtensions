@@ -5,6 +5,7 @@ import Core_Contracts = require("TFS/Core/Contracts");
 import Q = require("q");
 import ITfsConfig = require("./config");
 import MathHelper = require("../node_modules/six-sigma-control-limits/ts/math");
+import VSTSApi = require("./vsts-api");
 
 class Iteration {
     id: string;
@@ -26,6 +27,7 @@ class Iteration {
     committedWorkItems: WIT_Contracts.WorkItem[] = new Array<WIT_Contracts.WorkItem>();
     completedWorkItems: WIT_Contracts.WorkItem[] = new Array<WIT_Contracts.WorkItem>();
     closedWorkItems: WIT_Contracts.WorkItem[] = new Array<WIT_Contracts.WorkItem>();
+    completedAndClosedWorkItems: WIT_Contracts.WorkItem[] = new Array<WIT_Contracts.WorkItem>();
 
     reportStartDate: Date;
     reportEndDate: Date;
@@ -64,11 +66,11 @@ class Iteration {
             var detailsPromises = [];
 
             if (startIds.length > 0) {
-                detailsPromises.push(this.getWorkItemDetails(startIds, this.reportStartDate));
+                detailsPromises.push(VSTSApi.getWorkItemDetails(startIds, this._context.Fields, this.reportStartDate));
             }
 
             if (endIds.length > 0) {
-                detailsPromises.push(this.getWorkItemDetails(endIds, this.reportEndDate));
+                detailsPromises.push(VSTSApi.getWorkItemDetails(endIds, this._context.Fields, this.reportEndDate));
             }
 
             Q.all(detailsPromises).then((responses) => {
@@ -81,9 +83,14 @@ class Iteration {
                     this.workItemsAtEnd = <WIT_Contracts.WorkItem[]>responses[1];
                 }
 
-                this.calculateMetrics();
+                // get the work items that were closed at the end of the iteration 
+                // but were also worked on in the iteration 
+                this.getWorkItemsCompletedAndClosedInIteration(this.workItemsAtEnd).then(() => {
+                    
+                    this.calculateMetrics();
+                    deferred.resolve(this);
 
-                deferred.resolve(this);
+                });
 
             });
 
@@ -92,9 +99,12 @@ class Iteration {
         return deferred.promise;
     }
 
+    /**
+     * Calculates the total number of points completed within the iteration
+     */
     public calculateMetrics() {
 
-        if (this.workItemsAtEnd === undefined || this.workItemsAtStart === undefined || this._context == undefined) {
+        if (this.workItemsAtEnd === undefined || this.workItemsAtStart === undefined || this._context === undefined || this.completedAndClosedWorkItems === undefined) {
             throw Error("One or more required properties are undefined.");
         } else {
             this.numberItems = (this.workItemsAtEnd.length > this.workItemsAtStart.length) ? this.workItemsAtEnd.length : this.workItemsAtStart.length;
@@ -107,11 +117,13 @@ class Iteration {
             this.committedWorkItems = this.extractWorkItems(this.workItemsAtStart, this._context.CommittedStates, this._context.StateField);
             this.pointsCommitted = this.calculateWorkItemTotal(this.committedWorkItems, this._context.EffortField);
 
-            // TODO For all work items that are in a CLOSED state
-            // loop through the history in reverse and capture any work items that were NEW or COMMITTED in this iteration
-            // if there are matches add the points to the totalPointsCompleted variable
             this.closedWorkItems = this.extractWorkItems(this.workItemsAtEnd, this._context.ClosedStates, this._context.StateField);
             this.totalPointsClosed = this.calculateWorkItemTotal(this.closedWorkItems, this._context.EffortField);
+
+            // update the points completed during the iteration with the work items that 
+            // were worked on during the iteration but closed before the end of the iteration
+            var completedAndClosedPoints = this.calculateWorkItemTotal(this.completedAndClosedWorkItems, this._context.EffortField);
+            this.totalPointsCompleted += completedAndClosedPoints;
 
             // TODO calculate how many points the team committed at the start of the
             // iteration were completed at the end of the iteration
@@ -119,27 +131,55 @@ class Iteration {
         }
     }
 
-
     /**
-     * Returns a promise that retrieves the details of the specified work items
+     * Return a new filtered array of the supplied work items containing all work items that were both 
+     * closed at the end of the iteration and also worked on during the iteration
+     * @param workItems: the work items array to filter
      */
-    public getWorkItemDetails(ids: number[], date?: Date): IPromise<WIT_Contracts.WorkItem[]> {
-        if (ids.length === 0) {
-            return;
-        }
-        var client = WIT_Client.getClient();
-        var expand = WIT_Contracts.WorkItemExpand.None;
-        var errorPolicy = WIT_Contracts.WorkItemErrorPolicy.Omit;
-        return client.getWorkItems(ids, this._context.Fields, date, expand, errorPolicy);
-    };
+    public getWorkItemsCompletedAndClosedInIteration(workItems: WIT_Contracts.WorkItem[]): Q.Promise<{}> {
+        
+        var deferred = Q.defer();
+        var promises = [];
 
-    /**
+        // filter the provided work items to only those with a closed status
+        var closedWorkItems = this.extractWorkItems(workItems, this._context.ClosedStates, this._context.StateField);
+
+        // for each closed work item get the revision history 
+        promises = closedWorkItems.map(function(value: WIT_Contracts.WorkItem, index: number, array: WIT_Contracts.WorkItem[]): any {
+            return VSTSApi.getWorkItemRevisions(value.id);
+        });
+
+        // wait for all the promises to return
+        Q.all(promises).then((responses) => {
+            
+            // we need to check whether the work item was either committed or completed
+            // during the iteration so concatenate both sets of statuses to ease the comparison logic
+            var committedAndCompletedStates: string[] = this._context.CommittedStates.concat(this._context.CompletedStates);
+
+            // check whether the work item was worked on during the iteration
+            // if so add the latest revision to the class property
+            if (responses != undefined) {
+                responses.forEach(element => {
+                    var revisions: WIT_Contracts.WorkItem[] = <WIT_Contracts.WorkItem[]>element;
+                    if (this.workItemComittedDuringIteration(revisions, committedAndCompletedStates, this._context.StateField, this.startDate)) {
+                        this.completedAndClosedWorkItems.push(revisions[0]);
+                    }
+                });
+            }
+
+            deferred.resolve(this);
+        });
+
+        return deferred.promise;
+    }
+
+     /**
      * Returns a promise that retrieves all the work item ids that were 
      * assigned to the iteration at the start of the iteration
      */
     public getWorkItemRefsInIterationAtStart(): IPromise<WIT_Contracts.WorkItemQueryResult> {
         this.reportStartDate = this._tfsIteration.attributes.startDate.getNextWeekDayAtMidday();
-        return this.getWorkItemReferencesInIterationAtDate(this.reportStartDate);
+        return VSTSApi.getWorkItemReferencesInIterationAtDate(this.reportStartDate, this._tfsIteration.path, this._context.TeamContext().projectId);
     };
 
     /**
@@ -148,23 +188,43 @@ class Iteration {
      */
     public getWorkItemRefsInIterationAtEnd(): IPromise<WIT_Contracts.WorkItemQueryResult> {
         this.reportEndDate = this._tfsIteration.attributes.finishDate.endOfDay();
-        return this.getWorkItemReferencesInIterationAtDate(this.reportEndDate);
+        return VSTSApi.getWorkItemReferencesInIterationAtDate(this.reportEndDate, this._tfsIteration.path, this._context.TeamContext().projectId);
     };
 
     /**
-     * Returns a promise that retrieves the work items assigned 
-     * to an iteration at the specified date
-     * @param asOfDate The date to use to query TFS
+     * Returns true if the work item had one of the provided states during the iteration
+     * @param workItemRevisions an array of work item revisions
+     * @param states the array of states to check for
+     * @param stateField the field to check the states against
+     * @param iterationStartDate the start date of the iteration
      */
-    private getWorkItemReferencesInIterationAtDate(asOfDate: Date): IPromise<WIT_Contracts.WorkItemQueryResult> {
+    private workItemComittedDuringIteration(workItemRevisions: WIT_Contracts.WorkItem[], states: string[], stateField: string, iterationStartDate: Date): boolean {
+        
+        var foundMatch: boolean = false;
 
-        var query: WIT_Contracts.Wiql = { query: "" };
-        query.query = "SELECT [System.Id] From WorkItems WHERE ([System.WorkItemType] = 'User Story' OR [System.WorkItemType] = 'Product Backlog Item' OR [System.WorkItemType] = 'Defect' OR [System.WorkItemType] = 'Bug') AND [Iteration Path] = '" +
-            this._tfsIteration.path + "' ASOF '" +
-            asOfDate.toISOString() + "'";
+        for (var i = workItemRevisions.length; i > 0; i--) {
+            // exit if we have already found a match
+            if (foundMatch) break;
 
-        // Get a WIT client to make REST calls to VSTS
-        return WIT_Client.getClient().queryByWiql(query, this._context.TeamContext().projectId);
+            var rev: WIT_Contracts.WorkItem = workItemRevisions[i - 1];
+            var changedDate = rev.fields["System.ChangedDate"];
+            
+            if (changedDate < iterationStartDate)
+            {
+                // this revision was made before the iteration started so exit loop
+                break;
+            }
+
+            if (rev.fields[stateField] != undefined && 
+                states.indexOf(rev.fields[stateField].toLowerCase()) >= 0) {
+                // this work item revision state is committed or completed
+                // so it was worked on during this iteration so we can exit
+                foundMatch = true;
+                break;
+            }
+         }
+
+        return foundMatch;
     };
 
     /**
@@ -175,7 +235,7 @@ class Iteration {
         return queryResult.workItems.map((wi) => {
             return wi.id;
         });
-    }
+    };
 
     /**
      * Extracts a subset of work items from an array which have a specified state

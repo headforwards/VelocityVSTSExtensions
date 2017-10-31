@@ -1,9 +1,9 @@
 {
     "manifestVersion": 1,
     "id": "velocity-control-chart-extensions",
-    "version": "0.2.20",
+    "version": "0.3.7",
     "name": "Velocity Control Chart Extensions",
-    "description": "VSTS extensions to analyse team velocity to highlight anomalies.",
+    "description": "Get a more detailed view of your team velocity, use Six Sigma control limits to quickly identify potential issues you may want to investigate.",
     "publisher": "headforwards",
     "targets": [{
         "id": "Microsoft.VisualStudio.Services"
@@ -19,7 +19,7 @@
         "dashboard"
     ],
     "icons": {
-        "default": "img/logo.png"
+        "default": "img/headforwards-logo.png"
     },
     "scopes": [
         "vso.work"
@@ -35,8 +35,22 @@
         },
         "issues": {
             "uri": "https://github.com/headforwards/VelocityVSTSExtension/issues"
+        },
+        "repository": {
+            "uri": "https://github.com/headforwards/VelocityVSTSExtension"
         }
     },
+    "repository": {
+        "type": "git",
+        "uri": "https://github.com/headforwards/VelocityVSTSExtension"
+    },
+    "badges": [
+        {
+            "href": "https://travis-ci.org/headforwards/VelocityVSTSExtensions",
+            "uri": "https://travis-ci.org/headforwards/VelocityVSTSExtensions.svg?branch=master",
+            "description": "TravisCI build for the project"
+        }
+    ],
     "contributions": [{
             "id": "VelocityControlChart",
             "type": "ms.vss-dashboards-web.widget",
@@ -47,8 +61,8 @@
             "properties": {
                 "name": "Velocity Control Chart Dashboard Widget",
                 "description": "Six Sigma style Velocity Control Chart",
-                "catalogIconUrl:": "img/logo.png",
-                "previewImageUrl": "img/preview.png",
+                "catalogIconUrl:": "img/control-chart-preview.png",
+                "previewImageUrl": "img/control-chart-preview.png",
                 "uri": "velocity-control-chart.html",
                 "isNameConfigurable": true,
                 "supportedSizes": [{
