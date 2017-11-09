@@ -1,7 +1,7 @@
 {
     "manifestVersion": 1,
     "id": "velocity-control-chart-extensions",
-    "version": "0.3.11",
+    "version": "0.3.13",
     "name": "Velocity Control Chart Extensions",
     "description": "Get a more detailed view of your team velocity, use Six Sigma control limits to quickly identify potential issues you may want to investigate.",
     "publisher": "headforwards",
@@ -19,14 +19,14 @@
         "dashboard"
     ],
     "icons": {
-        "default": "img/headforwards-logo.png"
+        "default": "static/img/headforwards-logo.png"
     },
     "scopes": [
         "vso.work"
     ],
     "content": {
         "details": {
-            "path": "docs/description.md"
+            "path": "static/docs/description.md"
         }
     },
     "links": {
@@ -61,8 +61,8 @@
             "properties": {
                 "name": "Velocity Control Chart Dashboard Widget",
                 "description": "Six Sigma style Velocity Control Chart",
-                "catalogIconUrl:": "img/control-chart-preview.png",
-                "previewImageUrl": "img/control-chart-preview.png",
+                "catalogIconUrl:": "static/img/control-chart-preview.png",
+                "previewImageUrl": "static/img/control-chart-preview.png",
                 "uri": "velocity-control-chart.html",
                 "isNameConfigurable": true,
                 "supportedSizes": [{
@@ -108,28 +108,17 @@
             }
         }
     ],
-    "files": [{
-            "path": "velocity-control-chart.html",
+    "files": [
+        {
+            "path": "dist",
             "addressable": true
         },
         {
-            "path": "velocity-control-chart-configuration.html",
+            "path": "src",
             "addressable": true
         },
         {
-            "path": "sdk",
-            "addressable": true
-        },
-        {
-            "path": "js",
-            "addressable": true
-        },
-        {
-            "path": "ts",
-            "addressable": true
-        },
-        {
-            "path": "img",
+            "path": "static",
             "addressable": true
         }
     ]

@@ -5,6 +5,7 @@ import Core_Contracts = require("TFS/Core/Contracts");
 import Q = require("q");
 import ITfsConfig = require("./config");
 import MathHelper = require("../node_modules/six-sigma-control-limits/ts/math");
+// import MathHelper = require("six-sigma-control-limits");
 import VSTSApi = require("./vsts-api");
 
 class Iteration {
@@ -154,7 +155,7 @@ class Iteration {
             
             // we need to check whether the work item was either committed or completed
             // during the iteration so concatenate both sets of statuses to ease the comparison logic
-            var committedAndCompletedStates: string[] = this._context.CommittedStates.concat(this._context.CompletedStates);
+            var committedAndCompletedStates: string[] = this._context.CommittedStates.concat(this._context.CompletedStates).concat(this._context.NewStates);
 
             // check whether the work item was worked on during the iteration
             // if so add the latest revision to the class property

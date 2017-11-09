@@ -2,7 +2,8 @@
     "compilerOptions": {
         "target": "es5",
         // "outFile": "./js/app.js",
-        "outDir": "./js",
+        "outDir": "./dist",
+        // "rootDir": "./src",
         "module": "amd", 
         "moduleResolution": "node",
         "sourceMap": true,
@@ -13,7 +14,8 @@
         // "noImplicitThis": true,
         // "noFallthroughCasesInSwitch": true
         "types": [
-            "vss-web-extension-sdk"
+            "vss-web-extension-sdk",
+            "six-sigma-control-limits"
         ],
         "lib": [
             "dom",
@@ -24,6 +26,6 @@
     },
     "exclude": [
         "./node_modules/**/*",
-        "./ts/tests/**/*"
+        "./src/tests/**/*"
     ]
 }

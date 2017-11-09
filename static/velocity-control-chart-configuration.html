@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <script src="./sdk/VSS.SDK.min.js"></script>
+    <script type="text/javascript">
+        VSS.init({
+            explicitNotifyLoaded: true,
+            usePlatformStyles: true
+        });
+
+        VSS.require("TFS/Dashboards/WidgetHelpers", function (WidgetHelpers) {
+
+            WidgetHelpers.IncludeWidgetConfigurationStyles();
+
+            VSS.register("VelocityControlChart.Configuration", function () {
+
+                var $chartTypeDropdown = $("#chart-type");
+                var $unstartedFields = $("#unstarted-fields");
+                var $committedFields = $("#committed-fields");
+                var $completedFields = $("#completed-fields");
+                var $closedFields = $("#closed-fields");
+                var $effortField = $("#effort-field");
+                var $stateField = $("#state-field");
+
+                function updateConfiguration() {
+
+                    var customSettings = {
+                        data: JSON.stringify({
+                            chartType: $chartTypeDropdown.val(),
+                            unstartedWorkFields: $unstartedFields.val().toLowerCase(),
+                            committedWorkFields: $committedFields.val().toLowerCase(),
+                            completedWorkFields: $completedFields.val().toLowerCase(),
+                            closedWorkFields: $closedFields.val().toLowerCase(),
+                            effortField: $effortField.val(),
+                            stateField: $stateField.val()
+                        })
+                    };
+
+                    return customSettings;
+                }
+
+                return {
+                    load: function (widgetSettings, widgetConfigurationContext) {
+
+                        var settings = JSON.parse(widgetSettings.customSettings.data);
+
+                        // populate the UI with the saved settings
+                        if (settings) {
+                            if (settings.chartType) $chartTypeDropdown.val(settings.chartType);
+                            if (settings.unstartedWorkFields) $unstartedFields.val(settings.unstartedWorkFields);
+                            if (settings.committedWorkFields) $committedFields.val(settings.committedWorkFields);
+                            if (settings.completedWorkFields) $completedFields.val(settings.completedWorkFields);
+                            if (settings.closedWorkFields) $closedFields.val(settings.closedWorkFields);
+                            if (settings.effortField) $effortField.val(settings.effortField);
+                            if (settings.stateField) $stateField.val(settings.stateField);
+                        }
+
+                        // wire up the settings so any change fires an update for the widget
+                        $chartTypeDropdown.on("change", function () {
+                            var customSettings = updateConfiguration();
+                            var eventName = WidgetHelpers.WidgetEvent.ConfigurationChange;
+                            var eventArgs = WidgetHelpers.WidgetEvent.Args(customSettings);
+                            widgetConfigurationContext.notify(eventName, eventArgs);
+                        });
+
+                        $unstartedFields.on("change", function () {
+                            var customSettings = updateConfiguration();
+                            var eventName = WidgetHelpers.WidgetEvent.ConfigurationChange;
+                            var eventArgs = WidgetHelpers.WidgetEvent.Args(customSettings);
+                            widgetConfigurationContext.notify(eventName, eventArgs);
+                        });
+
+                        $committedFields.on("change", function () {
+                            var customSettings = updateConfiguration();
+                            var eventName = WidgetHelpers.WidgetEvent.ConfigurationChange;
+                            var eventArgs = WidgetHelpers.WidgetEvent.Args(customSettings);
+                            widgetConfigurationContext.notify(eventName, eventArgs);
+                        });
+
+                        $completedFields.on("change", function () {
+                            var customSettings = updateConfiguration();
+                            var eventName = WidgetHelpers.WidgetEvent.ConfigurationChange;
+                            var eventArgs = WidgetHelpers.WidgetEvent.Args(customSettings);
+                            widgetConfigurationContext.notify(eventName, eventArgs);
+                        });
+
+                        $closedFields.on("change", function () {
+                            var customSettings = updateConfiguration();
+                            var eventName = WidgetHelpers.WidgetEvent.ConfigurationChange;
+                            var eventArgs = WidgetHelpers.WidgetEvent.Args(customSettings);
+                            widgetConfigurationContext.notify(eventName, eventArgs);
+                        });
+
+                        $effortField.on("change", function () {
+                            var customSettings = updateConfiguration();
+                            var eventName = WidgetHelpers.WidgetEvent.ConfigurationChange;
+                            var eventArgs = WidgetHelpers.WidgetEvent.Args(customSettings);
+                            widgetConfigurationContext.notify(eventName, eventArgs);
+                        });
+
+                        $stateField.on("change", function () {
+                            var customSettings = updateConfiguration();
+                            var eventName = WidgetHelpers.WidgetEvent.ConfigurationChange;
+                            var eventArgs = WidgetHelpers.WidgetEvent.Args(customSettings);
+                            widgetConfigurationContext.notify(eventName, eventArgs);
+                        });
+
+                        return WidgetHelpers.WidgetStatusHelper.Success();
+                    },
+                    onSave: function () {
+
+                        var customSettings = updateConfiguration();
+                        return WidgetHelpers.WidgetConfigurationSave.Valid(customSettings);
+                    }
+                }
+            });
+
+            VSS.notifyLoadSucceeded();
+        });
+    </script>
+</head>
+
+<body>
+    <div class="widget-configuration">
+
+        <div class="dropdown">
+            <label>Chart Type</label>
+            <div class="wrapper">
+                <select id="chart-type">                        
+                    <option value="velocity-chart">Standard Velocity Chart</option>
+                    <option value="control-chart">Velocity Control Chart</option> 
+                    <!-- <option value="velocity-data">Standard Velocity Data Table</option> 
+                    <option value="control-data">Velocity Control Data Table</option>                            -->
+                </select>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="single-line-text-input">
+            <label>Fields for unstarted work</label>
+            <input type="text" id="unstarted-fields" value="approved,ready for review,1. new,2. ready for review,3. approved"></input>
+        </div>
+
+        <br />
+
+        <div class="single-line-text-input">
+            <label>Fields for committed work</label>
+            <input type="text" id="committed-fields" value="committed,4. committed"></input>
+        </div>
+
+        <br />
+
+        <div class="single-line-text-input">
+            <label>Fields for completed work</label>
+            <input type="text" id="completed-fields" value="deployed to staging,ready for release,ready for staging,ready for environments team,5. ready for environments team,6. deployed to staging,ready for uat"></input>
+        </div>
+
+        <br />
+
+        <div class="single-line-text-input">
+            <label>Fields for closed work</label>
+            <input type="text" id="closed-fields" value="done,released/done,deployed to production,7. released/done"></input>
+        </div>
+
+        <br />
+
+        <div class="dropdown">
+            <label>Effort Field</label>
+            <div class="wrapper">
+                <select id="effort-field">                        
+                    <option value="vsts-effort">Microsoft.VSTS.Scheduling.Effort</option>
+                    <option value="vsts-points">Microsoft.VSTS.Scheduling.StoryPoints</option>               
+                </select>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="dropdown">
+            <label>State Field</label>
+            <div class="wrapper">
+                <select id="state-field">                        
+                    <option value="vsts-column">System.BoardColumn</option>
+                    <!-- <option value="vsts-state">System.State</option>-->
+                </select>
+            </div>
+        </div>
+
+
+    </div>
+</body>
+
+</html>
