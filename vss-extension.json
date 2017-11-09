@@ -1,7 +1,7 @@
 {
     "manifestVersion": 1,
     "id": "velocity-control-chart-extensions",
-    "version": "0.3.13",
+    "version": "0.3.16",
     "name": "Velocity Control Chart Extensions",
     "description": "Get a more detailed view of your team velocity, use Six Sigma control limits to quickly identify potential issues you may want to investigate.",
     "publisher": "headforwards",
@@ -63,7 +63,7 @@
                 "description": "Six Sigma style Velocity Control Chart",
                 "catalogIconUrl:": "static/img/control-chart-preview.png",
                 "previewImageUrl": "static/img/control-chart-preview.png",
-                "uri": "velocity-control-chart.html",
+                "uri": "static/velocity-control-chart.html",
                 "isNameConfigurable": true,
                 "supportedSizes": [{
                         "rowSpan": 1,
@@ -104,11 +104,18 @@
             "properties": {
                 "name": "VelocityControlChart Configuration",
                 "description": "Configures VelocityControlChart Widget",
-                "uri": "velocity-control-chart-configuration.html"
+                "uri": "static/velocity-control-chart-configuration.html"
             }
         }
     ],
-    "files": [
+    "files": [{
+            "path": "static/velocity-control-chart.html",
+            "addressable": true
+        },
+        {
+            "path": "static/velocity-control-chart-configuration.html",
+            "addressable": true
+        },
         {
             "path": "dist",
             "addressable": true
@@ -118,7 +125,15 @@
             "addressable": true
         },
         {
-            "path": "static",
+            "path": "static/docs",
+            "addressable": true
+        },
+        {
+            "path": "static/img",
+            "addressable": true
+        },
+        {
+            "path": "static/sdk",
             "addressable": true
         }
     ]
