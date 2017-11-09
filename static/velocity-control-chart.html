@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="./sdk/VSS.SDK.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <!-- <script src="./js/bootstrapper.js"></script> -->
+    <script type="text/javascript">
+        VSS.init({
+            explicitNotifyLoaded: true,
+            usePlatformStyles: true,
+            configureModuleLoader: true
+        });
+
+        // Load main entry point for extension
+        VSS.require(["dist/ts/bootstrapper"], function () {
+            // Loading succeeded
+            VSS.notifyLoadSucceeded();
+        });
+    </script>
+
+</head>
+
+<body>
+    <div id="widget" class="widget">
+        <h2 class="title"></h2>
+        <img id="progress-indicator" src="./img/ajax-loader.gif">
+        <div id="progress-message"></div>
+        <div class="chart-container" style="height: 100%; width: 100%">
+            <div id="plot-chart"></div>
+        </div>
+        <div id="story-info-container"></div>
+        <div id="iteration-info-container"></div>
+    </div>
+
+</body>
+
+
+</html>

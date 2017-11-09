@@ -75,7 +75,7 @@ define(["require", "exports", "q", "../node_modules/six-sigma-control-limits/ts/
                 return VSTSApi.getWorkItemRevisions(value.id);
             });
             Q.all(promises).then(function (responses) {
-                var committedAndCompletedStates = _this._context.CommittedStates.concat(_this._context.CompletedStates);
+                var committedAndCompletedStates = _this._context.CommittedStates.concat(_this._context.CompletedStates).concat(_this._context.NewStates);
                 if (responses != undefined) {
                     responses.forEach(function (element) {
                         var revisions = element;
