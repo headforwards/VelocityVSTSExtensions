@@ -179,7 +179,7 @@ class Iteration {
      * assigned to the iteration at the start of the iteration
      */
     public getWorkItemRefsInIterationAtStart(): IPromise<WIT_Contracts.WorkItemQueryResult> {
-        this.reportStartDate = this._tfsIteration.attributes.startDate.getNextWeekDayAtMidday();
+        this.reportStartDate = this._tfsIteration.attributes.startDate.endOfDay();
         return VSTSApi.getWorkItemReferencesInIterationAtDate(this.reportStartDate, this._tfsIteration.path, this._context.TeamContext().projectId);
     };
 
@@ -188,7 +188,7 @@ class Iteration {
      * assigned to the iteration at the end of the iteration
      */
     public getWorkItemRefsInIterationAtEnd(): IPromise<WIT_Contracts.WorkItemQueryResult> {
-        this.reportEndDate = this._tfsIteration.attributes.finishDate.endOfDay();
+        this.reportEndDate = this._tfsIteration.attributes.finishDate.getNextWeekDayAtMidday();
         return VSTSApi.getWorkItemReferencesInIterationAtDate(this.reportEndDate, this._tfsIteration.path, this._context.TeamContext().projectId);
     };
 

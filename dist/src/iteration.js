@@ -89,12 +89,12 @@ define(["require", "exports", "q", "../node_modules/six-sigma-control-limits/ts/
             return deferred.promise;
         };
         Iteration.prototype.getWorkItemRefsInIterationAtStart = function () {
-            this.reportStartDate = this._tfsIteration.attributes.startDate.getNextWeekDayAtMidday();
+            this.reportStartDate = this._tfsIteration.attributes.startDate.endOfDay();
             return VSTSApi.getWorkItemReferencesInIterationAtDate(this.reportStartDate, this._tfsIteration.path, this._context.TeamContext().projectId);
         };
         ;
         Iteration.prototype.getWorkItemRefsInIterationAtEnd = function () {
-            this.reportEndDate = this._tfsIteration.attributes.finishDate.endOfDay();
+            this.reportEndDate = this._tfsIteration.attributes.finishDate.getNextWeekDayAtMidday();
             return VSTSApi.getWorkItemReferencesInIterationAtDate(this.reportEndDate, this._tfsIteration.path, this._context.TeamContext().projectId);
         };
         ;
