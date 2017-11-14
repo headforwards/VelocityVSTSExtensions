@@ -1,4 +1,4 @@
-define(["require", "exports", "q", "../node_modules/six-sigma-control-limits/ts/math", "./vsts-api"], function (require, exports, Q, MathHelper, VSTSApi) {
+define(["require", "exports", "q", "six-sigma-control-limits", "./vsts-api"], function (require, exports, Q, MathHelper, VSTSApi) {
     "use strict";
     var Iteration = (function () {
         function Iteration(iteration, ctx) {

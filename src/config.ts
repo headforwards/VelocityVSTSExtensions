@@ -1,3 +1,5 @@
+/// <reference path="../typings/tsd.d.ts" />
+
 import Core_Contracts = require("TFS/Core/Contracts");
 
 interface ITfsConfig {

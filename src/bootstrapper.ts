@@ -1,4 +1,6 @@
 /// <reference path="./main.ts" />
+/// <reference path="../typings/tsd.d.ts" />
+
 
 import Main = require("./main");
 import WidgetHelpers = require("TFS/Dashboards/WidgetHelpers");

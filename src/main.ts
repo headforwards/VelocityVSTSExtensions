@@ -1,3 +1,5 @@
+/// <reference path="../typings/tsd.d.ts" />
+
 import Q = require("q");
 import WIT_Client = require("TFS/WorkItemTracking/RestClient");
 import Work_Client = require("TFS/Work/RestClient");
@@ -9,7 +11,6 @@ import Velocity = require("./velocity");
 import "./date";
 import Iteration = require("./iteration");
 import ITfsConfig = require("./config");
-
 import TfsConfig = require("./config");
 
 class Main {

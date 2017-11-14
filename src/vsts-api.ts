@@ -1,3 +1,5 @@
+/// <reference path="../typings/tsd.d.ts" />
+
 import Work_Contracts = require("TFS/Work/Contracts");
 import WIT_Contracts = require("TFS/WorkItemTracking/Contracts");
 import WIT_Client = require("TFS/WorkItemTracking/RestClient");

@@ -13,6 +13,9 @@
         // "noImplicitReturns": true,
         // "noImplicitThis": true,
         // "noFallthroughCasesInSwitch": true
+        "typeRoots": [
+            "node_modules/@types"
+        ],
         "types": [
             "vss-web-extension-sdk",
             "six-sigma-control-limits"
