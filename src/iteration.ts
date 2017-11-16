@@ -36,12 +36,10 @@ class Iteration {
     reportEndDate: Date;
 
     private _context: ITfsConfig;
-    private _tfsIteration: Work_Contracts.TeamSettingsIteration;
 
     public constructor(iteration: Work_Contracts.TeamSettingsIteration, ctx: ITfsConfig) {
 
         this._context = ctx;
-        this._tfsIteration = iteration;
 
         this.id = iteration.id;
         this.name = iteration.name;
@@ -49,6 +47,8 @@ class Iteration {
         this.url = iteration.url;
         this.startDate = iteration.attributes.startDate;
         this.endDate = iteration.attributes.finishDate;
+        this.reportStartDate = iteration.attributes.startDate.endOfDay();
+        this.reportEndDate = iteration.attributes.finishDate.getNextWeekDayAtMidday();
 
     }
 
@@ -181,8 +181,7 @@ class Iteration {
      * assigned to the iteration at the start of the iteration
      */
     public getWorkItemRefsInIterationAtStart(): IPromise<WIT_Contracts.WorkItemQueryResult> {
-        this.reportStartDate = this._tfsIteration.attributes.startDate.endOfDay();
-        return VSTSApi.getWorkItemReferencesInIterationAtDate(this.reportStartDate, this._tfsIteration.path, this._context.TeamContext().projectId);
+        return VSTSApi.getWorkItemReferencesInIterationAtDate(this.reportStartDate, this.path, this._context.TeamContext().projectId);
     };
 
     /**
@@ -190,8 +189,7 @@ class Iteration {
      * assigned to the iteration at the end of the iteration
      */
     public getWorkItemRefsInIterationAtEnd(): IPromise<WIT_Contracts.WorkItemQueryResult> {
-        this.reportEndDate = this._tfsIteration.attributes.finishDate.getNextWeekDayAtMidday();
-        return VSTSApi.getWorkItemReferencesInIterationAtDate(this.reportEndDate, this._tfsIteration.path, this._context.TeamContext().projectId);
+        return VSTSApi.getWorkItemReferencesInIterationAtDate(this.reportEndDate, this.path, this._context.TeamContext().projectId);
     };
 
     /**

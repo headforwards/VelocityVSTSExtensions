@@ -9,13 +9,14 @@ define(["require", "exports", "q", "six-sigma-control-limits", "./vsts-api"], fu
             this.closedWorkItems = new Array();
             this.completedAndClosedWorkItems = new Array();
             this._context = ctx;
-            this._tfsIteration = iteration;
             this.id = iteration.id;
             this.name = iteration.name;
             this.path = iteration.path;
             this.url = iteration.url;
             this.startDate = iteration.attributes.startDate;
             this.endDate = iteration.attributes.finishDate;
+            this.reportStartDate = iteration.attributes.startDate.endOfDay();
+            this.reportEndDate = iteration.attributes.finishDate.getNextWeekDayAtMidday();
         }
         Iteration.prototype.getWorkItemInformation = function () {
             var _this = this;
@@ -89,13 +90,11 @@ define(["require", "exports", "q", "six-sigma-control-limits", "./vsts-api"], fu
             return deferred.promise;
         };
         Iteration.prototype.getWorkItemRefsInIterationAtStart = function () {
-            this.reportStartDate = this._tfsIteration.attributes.startDate.endOfDay();
-            return VSTSApi.getWorkItemReferencesInIterationAtDate(this.reportStartDate, this._tfsIteration.path, this._context.TeamContext().projectId);
+            return VSTSApi.getWorkItemReferencesInIterationAtDate(this.reportStartDate, this.path, this._context.TeamContext().projectId);
         };
         ;
         Iteration.prototype.getWorkItemRefsInIterationAtEnd = function () {
-            this.reportEndDate = this._tfsIteration.attributes.finishDate.getNextWeekDayAtMidday();
-            return VSTSApi.getWorkItemReferencesInIterationAtDate(this.reportEndDate, this._tfsIteration.path, this._context.TeamContext().projectId);
+            return VSTSApi.getWorkItemReferencesInIterationAtDate(this.reportEndDate, this.path, this._context.TeamContext().projectId);
         };
         ;
         Iteration.prototype.workItemComittedDuringIteration = function (workItemRevisions, states, stateField, iterationStartDate) {
