@@ -1,7 +1,7 @@
 {
     "manifestVersion": 1,
     "id": "velocity-control-chart-extensions",
-    "version": "0.3.29",
+    "version": "0.3.30",
     "name": "Velocity Control Chart Extensions",
     "description": "Get a more detailed view of your team velocity, use Six Sigma control limits to quickly identify potential issues you may want to investigate.",
     "publisher": "headforwards",
@@ -34,15 +34,15 @@
             "uri": "https://www.headforwards.com"
         },
         "issues": {
-            "uri": "https://github.com/headforwards/VelocityVSTSExtension/issues"
+            "uri": "https://github.com/headforwards/VelocityVSTSExtensions/issues"
         },
         "repository": {
-            "uri": "https://github.com/headforwards/VelocityVSTSExtension"
+            "uri": "https://github.com/headforwards/VelocityVSTSExtensions"
         }
     },
     "repository": {
         "type": "git",
-        "uri": "https://github.com/headforwards/VelocityVSTSExtension"
+        "uri": "https://github.com/headforwards/VelocityVSTSExtensions"
     },
     "badges": [
         {
