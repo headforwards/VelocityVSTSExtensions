@@ -17,8 +17,7 @@
             "node_modules/@types"
         ],
         "types": [
-            "vss-web-extension-sdk",
-            "six-sigma-control-limits"
+            "vss-web-extension-sdk"
         ],
         "lib": [
             "dom",

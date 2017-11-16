@@ -1,4 +1,5 @@
 /// <reference path="../typings/tsd.d.ts" />
+/// <reference path="./math.ts" />
 
 import Work_Contracts = require("TFS/Work/Contracts");
 import WIT_Contracts = require("TFS/WorkItemTracking/Contracts");
@@ -6,8 +7,7 @@ import WIT_Client = require("TFS/WorkItemTracking/RestClient");
 import Core_Contracts = require("TFS/Core/Contracts");
 import Q = require("q");
 import ITfsConfig = require("./config");
-// import MathHelper = require("../node_modules/six-sigma-control-limits/ts/math");
-import MathHelper = require("six-sigma-control-limits");
+import MathHelper = require("./math");
 import VSTSApi = require("./vsts-api");
 
 class Iteration {

@@ -1,11 +1,11 @@
 /// <reference path="iteration.ts" />
 /// <reference path="../typings/tsd.d.ts" />
+/// <reference path="./sixsigma.ts" />
+/// <reference path="./math.ts" />
 
 import Iteration = require("./iteration");
-import MathHelper = require("six-sigma-control-limits");
-// import SixSigma = require("six-sigma-control-limits");
-// import MathHelper = require("../node_modules/six-sigma-control-limits/ts/math");
-import SixSigma = require("../node_modules/six-sigma-control-limits/ts/sixsigma");
+import MathHelper = require("./math");
+import SixSigma = require("./sixsigma");
 
 class Velocity {
 

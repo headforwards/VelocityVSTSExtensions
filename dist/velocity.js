@@ -1,4 +1,4 @@
-define(["require", "exports", "six-sigma-control-limits", "../node_modules/six-sigma-control-limits/ts/sixsigma"], function (require, exports, MathHelper, SixSigma) {
+define(["require", "exports", "./math", "./sixsigma"], function (require, exports, MathHelper, SixSigma) {
     "use strict";
     var Velocity = (function () {
         function Velocity() {
