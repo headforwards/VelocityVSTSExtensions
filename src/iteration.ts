@@ -63,7 +63,7 @@ class Iteration {
         Q.all(promises).then((promiseResponse) => {
 
             var startIds = this.extractIdsFromQueryResult(<WIT_Contracts.WorkItemQueryResult>promiseResponse[0]);
-            var endIds = this.extractIdsFromQueryResult(<WIT_Contracts.WorkItemQueryResult>promiseResponse[0]);
+            var endIds = this.extractIdsFromQueryResult(<WIT_Contracts.WorkItemQueryResult>promiseResponse[1]);
 
             // get the work items details
             var detailsPromises = [];

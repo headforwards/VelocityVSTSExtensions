@@ -5,6 +5,7 @@ node_js:
 before_install:
   - npm install -g typescript@2.3.4
   - npm install -g vss-web-extension-sdk@1.110.0
+  - npm install ts-node@^3.3.0
 
 install:
-  - npm install dev
+  - npm install

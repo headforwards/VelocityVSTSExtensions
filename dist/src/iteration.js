@@ -25,7 +25,7 @@ define(["require", "exports", "q", "six-sigma-control-limits", "./vsts-api"], fu
             promises.push(this.getWorkItemRefsInIterationAtEnd());
             Q.all(promises).then(function (promiseResponse) {
                 var startIds = _this.extractIdsFromQueryResult(promiseResponse[0]);
-                var endIds = _this.extractIdsFromQueryResult(promiseResponse[0]);
+                var endIds = _this.extractIdsFromQueryResult(promiseResponse[1]);
                 var detailsPromises = [];
                 if (startIds.length > 0) {
                     detailsPromises.push(VSTSApi.getWorkItemDetails(startIds, _this._context.Fields, _this.reportStartDate));
