@@ -15,7 +15,7 @@ import IVelocityChart = require("./chart-interface");
 var chart: IVelocityChart;
 
 function drawCharts() {
-    if (chart != undefined) {
+    if (chart !== undefined) {
         chart.draw();
     }
 }
@@ -24,11 +24,11 @@ function processTfsData(widgetSettings: any, velocity: Velocity) {
 
     var settings = JSON.parse(widgetSettings.customSettings.data);
 
-    if (settings && settings.chartType == "control-chart") {
+    if (settings && settings.chartType === "control-chart") {
         chart = new VelocityControlChart(velocity, "plot-chart", widgetSettings.name)
-    } else if (settings && settings.chartType == "control-data") {
+    } else if (settings && settings.chartType === "control-data") {
         chart = new VelocityControlChartDataTable(velocity, "plot-chart", widgetSettings.name)
-    } else if (settings && settings.chartType == "velocity-data") {
+    } else if (settings && settings.chartType === "velocity-data") {
         chart = new VelocityChartDataTable(velocity, "plot-chart", widgetSettings.name)
     } else {
         chart = new VelocityChart(velocity, "plot-chart", widgetSettings.name);

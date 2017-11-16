@@ -25,7 +25,7 @@ class TfsConfig implements ITfsConfig {
         // the effort and state fields in the settings only
         // store an id rather than the actual field name
         let effort = (effortField === undefined) ? "" : effortField.trim();
-        if (effort == "vsts-effort") {
+        if (effort === "vsts-effort") {
             this.EffortField = "Microsoft.VSTS.Scheduling.StoryPoints";
         } else {
             this.EffortField = "Microsoft.VSTS.Scheduling.Effort";
@@ -33,7 +33,7 @@ class TfsConfig implements ITfsConfig {
         
         // currently the only available option for state is System.BoardColumn
         let state = (stateField === undefined) ? "" : stateField.trim();
-        if(state == "") {
+        if(state === "") {
             this.StateField = "System.BoardColumn";
         } else {
             this.StateField = "System.BoardColumn";

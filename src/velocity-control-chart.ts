@@ -12,7 +12,7 @@ class VelocityControlChart implements IVelocityChart {
     constructor(velocity: Velocity, divId: string, chartTitle: string) {
 
         this.outputLocation = document.getElementById(divId);
-        this.title == chartTitle;
+        this.title = chartTitle;
         this.data = new google.visualization.DataTable();
 
         this.data.addColumn("string", "Iteration");

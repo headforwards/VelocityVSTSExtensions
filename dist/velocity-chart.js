@@ -5,7 +5,7 @@ define(["require", "exports"], function (require, exports) {
             var _this = this;
             this.title = "";
             this.outputLocation = document.getElementById(divId);
-            this.title == chartTitle;
+            this.title = chartTitle;
             this.data = new google.visualization.DataTable();
             this.data.addColumn("string", "Iteration");
             this.data.addColumn("number", "Points Completed");

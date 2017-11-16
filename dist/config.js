@@ -8,14 +8,14 @@ define(["require", "exports"], function (require, exports) {
             this.ClosedStates = this.parseString(closedStates, ",");
             this.Fields = this.parseString(returnFields, ",");
             var effort = (effortField === undefined) ? "" : effortField.trim();
-            if (effort == "vsts-effort") {
+            if (effort === "vsts-effort") {
                 this.EffortField = "Microsoft.VSTS.Scheduling.StoryPoints";
             }
             else {
                 this.EffortField = "Microsoft.VSTS.Scheduling.Effort";
             }
             var state = (stateField === undefined) ? "" : stateField.trim();
-            if (state == "") {
+            if (state === "") {
                 this.StateField = "System.BoardColumn";
             }
             else {
