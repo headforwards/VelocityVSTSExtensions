@@ -39,9 +39,10 @@ Date.prototype.getNextWeekDayAtMidday = function () : Date {
 * Sets the time element of the Date object to 23:59:59:000
 */
 Date.prototype.endOfDay = function() : Date {
-   this.setUTCHours(23);
-   this.setUTCMinutes(59);
-   this.setUTCSeconds(59);
-   this.setUTCMilliseconds(0);
-   return this;
+    var dt: Date = this;
+    dt.setUTCHours(23);
+    dt.setUTCMinutes(59);
+    dt.setUTCSeconds(59);
+    dt.setUTCMilliseconds(0);
+    return dt;
 }

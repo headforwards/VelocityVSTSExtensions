@@ -21,10 +21,11 @@ Date.prototype.getNextWeekDayAtMidday = function () {
     return dt;
 };
 Date.prototype.endOfDay = function () {
-    this.setUTCHours(23);
-    this.setUTCMinutes(59);
-    this.setUTCSeconds(59);
-    this.setUTCMilliseconds(0);
-    return this;
+    var dt = this;
+    dt.setUTCHours(23);
+    dt.setUTCMinutes(59);
+    dt.setUTCSeconds(59);
+    dt.setUTCMilliseconds(0);
+    return dt;
 };
 //# sourceMappingURL=date.js.map
